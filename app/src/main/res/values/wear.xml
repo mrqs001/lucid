@@ -1,0 +1,6 @@
+<resources xmlns:tools="http://schemas.android.com/tools" tools:keep="@array/android_wear_capabilities">
+    <!-- Lets the watch app find this phone through the Wear Data Layer CapabilityClient. -->
+    <string-array name="android_wear_capabilities">
+        <item>lucid_phone</item>
+    </string-array>
+</resources>

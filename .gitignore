@@ -1,0 +1,16 @@
+.toolchain/
+.gradle/
+build/
+*/build/
+local.properties
+.idea/
+*.iml
+.kotlin/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+wear/libs/*.aar
+wear/libs/*.zip
+/data/

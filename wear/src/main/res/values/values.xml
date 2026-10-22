@@ -1,0 +1,7 @@
+<resources xmlns:tools="http://schemas.android.com/tools" tools:keep="@array/android_wear_capabilities">
+    <string name="app_name">Lucid</string>
+    <color name="night">#0B0D14</color>
+    <string-array name="android_wear_capabilities">
+        <item>lucid_watch</item>
+    </string-array>
+</resources>

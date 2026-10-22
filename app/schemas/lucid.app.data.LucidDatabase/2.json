@@ -1,0 +1,901 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "53cd57f100f05badac6f98430d4e842e",
+    "entities": [
+      {
+        "tableName": "session",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `startedAt` INTEGER NOT NULL, `endedAt` INTEGER, `origin` TEXT NOT NULL, `device` TEXT NOT NULL, `provider` TEXT NOT NULL, `scenarioId` TEXT, `seed` INTEGER, `linkKind` TEXT NOT NULL, `configJson` TEXT NOT NULL, `estimatorId` TEXT NOT NULL, `policyId` TEXT NOT NULL, `experimentId` TEXT, `armId` TEXT, `armLabel` TEXT, `status` TEXT NOT NULL, `summaryJson` TEXT, `sleepOnsetAt` INTEGER, `estSleepMin` REAL, `estRemMin` REAL, `cuesDelivered` INTEGER NOT NULL, `cuesWouldDeliver` INTEGER NOT NULL, `suspectedArousals` INTEGER NOT NULL, `meanQuality` REAL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startedAt",
+            "columnName": "startedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endedAt",
+            "columnName": "endedAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "origin",
+            "columnName": "origin",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "device",
+            "columnName": "device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "provider",
+            "columnName": "provider",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "scenarioId",
+            "columnName": "scenarioId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "seed",
+            "columnName": "seed",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "linkKind",
+            "columnName": "linkKind",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "configJson",
+            "columnName": "configJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "estimatorId",
+            "columnName": "estimatorId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "policyId",
+            "columnName": "policyId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "experimentId",
+            "columnName": "experimentId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "armId",
+            "columnName": "armId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "armLabel",
+            "columnName": "armLabel",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "summaryJson",
+            "columnName": "summaryJson",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sleepOnsetAt",
+            "columnName": "sleepOnsetAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "estSleepMin",
+            "columnName": "estSleepMin",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "estRemMin",
+            "columnName": "estRemMin",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "cuesDelivered",
+            "columnName": "cuesDelivered",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cuesWouldDeliver",
+            "columnName": "cuesWouldDeliver",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "suspectedArousals",
+            "columnName": "suspectedArousals",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "meanQuality",
+            "columnName": "meanQuality",
+            "affinity": "REAL"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_session_startedAt",
+            "unique": false,
+            "columnNames": [
+              "startedAt"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_session_startedAt` ON `${TABLE_NAME}` (`startedAt`)"
+          }
+        ]
+      },
+      {
+        "tableName": "sample",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`rowId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `sessionId` TEXT NOT NULL, `t` INTEGER NOT NULL, `kind` INTEGER NOT NULL, `v1` REAL NOT NULL, `v2` REAL NOT NULL, `quality` INTEGER NOT NULL, `backfill` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "rowId",
+            "columnName": "rowId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sessionId",
+            "columnName": "sessionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "t",
+            "columnName": "t",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kind",
+            "columnName": "kind",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "v1",
+            "columnName": "v1",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "v2",
+            "columnName": "v2",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quality",
+            "columnName": "quality",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "backfill",
+            "columnName": "backfill",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "rowId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_sample_sessionId_t",
+            "unique": false,
+            "columnNames": [
+              "sessionId",
+              "t"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_sample_sessionId_t` ON `${TABLE_NAME}` (`sessionId`, `t`)"
+          }
+        ]
+      },
+      {
+        "tableName": "epoch",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`sessionId` TEXT NOT NULL, `idx` INTEGER NOT NULL, `startMs` INTEGER NOT NULL, `hrMean` REAL, `hrRel` REAL, `hrInstability` REAL, `rmssd` REAL, `activityMg` REAL, `activeSeconds` INTEGER NOT NULL, `quality` REAL NOT NULL, `contactLost` INTEGER NOT NULL, `pWake` REAL NOT NULL, `pLight` REAL NOT NULL, `pDeep` REAL NOT NULL, `pRem` REAL NOT NULL, `confidence` REAL NOT NULL, `stage` INTEGER NOT NULL, `contributionsJson` TEXT NOT NULL, PRIMARY KEY(`sessionId`, `idx`))",
+        "fields": [
+          {
+            "fieldPath": "sessionId",
+            "columnName": "sessionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idx",
+            "columnName": "idx",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startMs",
+            "columnName": "startMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hrMean",
+            "columnName": "hrMean",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "hrRel",
+            "columnName": "hrRel",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "hrInstability",
+            "columnName": "hrInstability",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "rmssd",
+            "columnName": "rmssd",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "activityMg",
+            "columnName": "activityMg",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "activeSeconds",
+            "columnName": "activeSeconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quality",
+            "columnName": "quality",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "contactLost",
+            "columnName": "contactLost",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pWake",
+            "columnName": "pWake",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pLight",
+            "columnName": "pLight",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pDeep",
+            "columnName": "pDeep",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pRem",
+            "columnName": "pRem",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "confidence",
+            "columnName": "confidence",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stage",
+            "columnName": "stage",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "contributionsJson",
+            "columnName": "contributionsJson",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "sessionId",
+            "idx"
+          ]
+        }
+      },
+      {
+        "tableName": "cue_event",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `sessionId` TEXT NOT NULL, `t` INTEGER NOT NULL, `epochIdx` INTEGER NOT NULL, `action` TEXT NOT NULL, `failuresJson` TEXT NOT NULL, `explanation` TEXT NOT NULL, `pRem` REAL NOT NULL, `pWake` REAL NOT NULL, `confidence` REAL NOT NULL, `quality` REAL NOT NULL, `intensity` REAL NOT NULL, `patternId` TEXT NOT NULL, `cueId` TEXT, `cueNumber` INTEGER, `outcome` TEXT, `ackAt` INTEGER, `ackDetail` TEXT, `response` TEXT, `responseDetail` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sessionId",
+            "columnName": "sessionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "t",
+            "columnName": "t",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "epochIdx",
+            "columnName": "epochIdx",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "action",
+            "columnName": "action",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "failuresJson",
+            "columnName": "failuresJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "explanation",
+            "columnName": "explanation",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pRem",
+            "columnName": "pRem",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pWake",
+            "columnName": "pWake",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "confidence",
+            "columnName": "confidence",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quality",
+            "columnName": "quality",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "intensity",
+            "columnName": "intensity",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "patternId",
+            "columnName": "patternId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cueId",
+            "columnName": "cueId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "cueNumber",
+            "columnName": "cueNumber",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "outcome",
+            "columnName": "outcome",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "ackAt",
+            "columnName": "ackAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "ackDetail",
+            "columnName": "ackDetail",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "response",
+            "columnName": "response",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "responseDetail",
+            "columnName": "responseDetail",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_cue_event_sessionId",
+            "unique": false,
+            "columnNames": [
+              "sessionId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_cue_event_sessionId` ON `${TABLE_NAME}` (`sessionId`)"
+          },
+          {
+            "name": "index_cue_event_cueId",
+            "unique": false,
+            "columnNames": [
+              "cueId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_cue_event_cueId` ON `${TABLE_NAME}` (`cueId`)"
+          }
+        ]
+      },
+      {
+        "tableName": "sim_truth",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`sessionId` TEXT NOT NULL, `idx` INTEGER NOT NULL, `stage` INTEGER NOT NULL, PRIMARY KEY(`sessionId`, `idx`))",
+        "fields": [
+          {
+            "fieldPath": "sessionId",
+            "columnName": "sessionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idx",
+            "columnName": "idx",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stage",
+            "columnName": "stage",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "sessionId",
+            "idx"
+          ]
+        }
+      },
+      {
+        "tableName": "session_event",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `sessionId` TEXT NOT NULL, `t` INTEGER NOT NULL, `type` TEXT NOT NULL, `detail` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sessionId",
+            "columnName": "sessionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "t",
+            "columnName": "t",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "detail",
+            "columnName": "detail",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_session_event_sessionId",
+            "unique": false,
+            "columnNames": [
+              "sessionId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_session_event_sessionId` ON `${TABLE_NAME}` (`sessionId`)"
+          }
+        ]
+      },
+      {
+        "tableName": "journal",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, `sessionId` TEXT, `title` TEXT NOT NULL, `body` TEXT NOT NULL, `recall` TEXT NOT NULL, `lucid` INTEGER NOT NULL, `lucidity` INTEGER NOT NULL, `cueRecognition` TEXT NOT NULL, `vividness` INTEGER NOT NULL, `control` INTEGER NOT NULL, `sleepQuality` INTEGER NOT NULL, `awakenings` INTEGER NOT NULL, `tags` TEXT NOT NULL, `audioPath` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sessionId",
+            "columnName": "sessionId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "body",
+            "columnName": "body",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "recall",
+            "columnName": "recall",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lucid",
+            "columnName": "lucid",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lucidity",
+            "columnName": "lucidity",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cueRecognition",
+            "columnName": "cueRecognition",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "vividness",
+            "columnName": "vividness",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "control",
+            "columnName": "control",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sleepQuality",
+            "columnName": "sleepQuality",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "awakenings",
+            "columnName": "awakenings",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tags",
+            "columnName": "tags",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "audioPath",
+            "columnName": "audioPath",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_journal_createdAt",
+            "unique": false,
+            "columnNames": [
+              "createdAt"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_journal_createdAt` ON `${TABLE_NAME}` (`createdAt`)"
+          },
+          {
+            "name": "index_journal_sessionId",
+            "unique": false,
+            "columnNames": [
+              "sessionId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_journal_sessionId` ON `${TABLE_NAME}` (`sessionId`)"
+          }
+        ]
+      },
+      {
+        "tableName": "training",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `t` INTEGER NOT NULL, `type` TEXT NOT NULL, `detail` TEXT NOT NULL, `durationSec` INTEGER NOT NULL, `source` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "t",
+            "columnName": "t",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "detail",
+            "columnName": "detail",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "durationSec",
+            "columnName": "durationSec",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "source",
+            "columnName": "source",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_training_t",
+            "unique": false,
+            "columnNames": [
+              "t"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_training_t` ON `${TABLE_NAME}` (`t`)"
+          }
+        ]
+      },
+      {
+        "tableName": "experiment",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `hypothesis` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `active` INTEGER NOT NULL, `assignment` TEXT NOT NULL, `blinded` INTEGER NOT NULL, `armsJson` TEXT NOT NULL, `seed` INTEGER NOT NULL, `endedAt` INTEGER, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hypothesis",
+            "columnName": "hypothesis",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "active",
+            "columnName": "active",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "assignment",
+            "columnName": "assignment",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "blinded",
+            "columnName": "blinded",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "armsJson",
+            "columnName": "armsJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "seed",
+            "columnName": "seed",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endedAt",
+            "columnName": "endedAt",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "battery",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `sessionId` TEXT NOT NULL, `t` INTEGER NOT NULL, `device` TEXT NOT NULL, `pct` INTEGER NOT NULL, `charging` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sessionId",
+            "columnName": "sessionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "t",
+            "columnName": "t",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "device",
+            "columnName": "device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pct",
+            "columnName": "pct",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "charging",
+            "columnName": "charging",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_battery_sessionId_t",
+            "unique": false,
+            "columnNames": [
+              "sessionId",
+              "t"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_battery_sessionId_t` ON `${TABLE_NAME}` (`sessionId`, `t`)"
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '53cd57f100f05badac6f98430d4e842e')"
+    ]
+  }
+}
