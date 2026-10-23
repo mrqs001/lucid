@@ -37,6 +37,51 @@ def iso(ms):
     return time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime(ms / 1000)) if ms else None
 
 
+REPO = "https://github.com/mrqs001/lucid"
+
+# Field descriptions for independent checking. Kept next to the export so they cannot drift apart.
+SCHEMA = {
+    "time": "All t / *_ms fields are Unix epoch milliseconds (UTC). ISO strings are local time.",
+    "heart_rate[]": {
+        "source": "Samsung Health Sensor SDK HEART_RATE_CONTINUOUS on the watch, 1 Hz",
+        "bpm": "beats per minute as reported by the watch (0 when quality is no_contact)",
+        "quality": "from the SDK status: 1 -> good; -2, -8, -10 (movement / weak signal) -> poor; -3 (watch off the skin) -> no_contact; 0 and -999 (initialising / other sensor busy) are dropped on the watch",
+        "backfill": "true if the sample was buffered on the watch during a disconnection and delivered late",
+    },
+    "inter_beat_intervals[]": {
+        "source": "SDK IBI_LIST with IBI_STATUS_LIST",
+        "t": "time of the beat that ends the interval. The SDK delivers IBIs in batches without per-beat times; the watch rebuilds beat times backwards from the timestamp of the batch's last data point (approximation)",
+        "ms": "interval between consecutive detected beats, milliseconds",
+        "quality": "IBI status 0 -> good, otherwise poor",
+    },
+    "motion[]": {
+        "source": "accelerometer, 25 Hz, reduced on the watch to one summary per second (on this night via the SDK's ACCELEROMETER_CONTINUOUS, raw value x 9.81 / 4095.94 = m/s^2)",
+        "activity_mg": "mean over the second of | |a| - 1 g |, in milli-g (ENMO-like, both directions)",
+        "angle_change_deg": "absolute change of the mean arm z-angle, atan2(az, sqrt(ax^2 + ay^2)) in degrees, versus the previous second",
+    },
+    "sensor_status[]": "on_wrist / off_wrist transitions reported by the watch",
+    "epochs[]": {
+        "window": "30 s, aligned to the session start; closed once every active sensor channel has passed its end + 3 s",
+        "hr_mean": "mean of the epoch's good/fair heart-rate samples (needs >= 10)",
+        "hr_rel": "hr_mean minus tonight's baseline = 20th percentile of hr_mean over quiet epochs so far (no movement, >= 60% HR coverage, skin contact); baseline used once >= 4 quiet epochs exist",
+        "hr_instability": "standard deviation of the 1 Hz good/fair heart rate over the trailing 5 epochs (2.5 min, needs >= 60 samples), bpm",
+        "rmssd_ms": "root mean square of successive differences of cleaned IBIs over the trailing 5 epochs; only pairs of accepted beats that were adjacent in the raw series; needs >= 40 pairs. Cleaning: poor-quality IBIs dropped; an IBI deviating > 20% from the median of the last 7 accepted IBIs is rejected (reference resets after 8+ consecutive rejections)",
+        "activity_mg": "mean of the epoch's per-second activity_mg",
+        "active_seconds": "seconds in the epoch with activity_mg > 40 or angle_change_deg > 3",
+        "quality": "0 if contact lost (off wrist or > 15 s no-contact), else HR coverage x (1 - 0.5 x poor fraction) x (1 - min(1, 2 x IBI artefact fraction)) x (0.7 if motion coverage < 50%)",
+        "p": "posterior stage probabilities from the estimator after this epoch (causal, forward-filtered)",
+        "stage_estimate": "most likely stage",
+        "confidence": "data support (weighted share of features available x quality) x (0.5 + 0.5 x decisiveness)",
+        "evidence": "per feature: observed value and its weighted log-likelihood ratio for REM vs the other stages (positive = toward REM)",
+    },
+    "estimator": "hmm-heuristic-v1: hidden Markov model forward filter over wake/light/deep/REM with hand-set, literature-informed parameters (not fitted, not validated against polysomnography). Code: core/engine/src/main/kotlin/lucid/core/engine/Estimator.kt and Features.kt",
+    "sleep_onset": "start of the first 10 minutes in which every epoch has p(wake) < 0.5 and wake is not the most likely stage",
+    "cue_decisions[]": "every epoch with p(REM) >= threshold: DELIVER, SUPPRESS (with every failed rule) or WOULD_DELIVER on baseline nights. Code: core/engine/.../Cueing.kt",
+    "battery[]": "wall-clock battery readings: watch from its status messages, phone polled every 60 s; stored on change or at least every 10 min",
+    "events[]": "session log: start, stop, link changes, watch status changes, backfills, resumes, errors",
+}
+
+
 def shift_beats(ibis, delta_bpm, gap_tolerance_ms=60):
     """Rebuild a beat sequence whose instantaneous rate is the original + delta_bpm.
 
@@ -74,6 +119,14 @@ def shift_beats(ibis, delta_bpm, gap_tolerance_ms=60):
                 n += 1
             phase, prev_edge = end_phase, t
     return out
+
+
+def git_head():
+    import subprocess
+    try:
+        return subprocess.run(["git", "-C", str(ROOT), "rev-parse", "--short", "HEAD"], capture_output=True, text=True, check=True).stdout.strip()
+    except Exception:
+        return "unknown"
 
 
 def run_replay(session_start, config, samples):
@@ -187,7 +240,13 @@ def main():
             "config": config,
             "summary": summary,
         },
-        "notes": {"times": "t fields are epoch milliseconds (UTC)", "stages": "estimates from an unvalidated model"},
+        "provenance": {
+            "repository": REPO,
+            "recorded_with": "phone app and watch app built from the code in " + REPO + " as of commit 85cba93 (phone: Android 16 phone; watch: Galaxy Watch7 SM-L300, One UI 8 Watch, Samsung Health Sensor SDK 1.4.1)",
+            "derived_data": ("recomputed from the modified samples by `core/eval replay` at commit " + git_head() + "; the same command reproduces the unmodified night exactly (637/637 epochs, identical sleep onset)") if off else "as computed live on the phone",
+            "cue_config_used": "session.config (the configuration stored with the night)",
+        },
+        "schema": SCHEMA,
         "heart_rate": heart_rate,
         "inter_beat_intervals": ibi,
         "motion": motion,
