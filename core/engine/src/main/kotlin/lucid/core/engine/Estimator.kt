@@ -1,6 +1,8 @@
 package lucid.core.engine
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import lucid.core.model.SleepStage
 import kotlin.math.exp
 import kotlin.math.ln
@@ -42,7 +44,8 @@ interface StageEstimator {
     val description: String
 
     /**
-     * True only for estimators validated against polysomnography. The bundled heuristic is not;
+     * True only for estimators validated against polysomnography on the watch in use. The bundled
+     * model was fitted and tested on lab nights from another watch, so it is not;
      * the UI must say so.
      */
     val validatedAgainstPsg: Boolean
@@ -65,9 +68,9 @@ interface StageEstimator {
  * not been validated against polysomnography; treat its REM probability as an experimental signal.
  */
 class HmmStageEstimator(private val params: HmmParams = HmmParams.Default) : StageEstimator {
-    override val id = "hmm-heuristic-v1"
-    override val description = "HMM forward filter, hand-set priors (uncalibrated)"
-    override val validatedAgainstPsg = false
+    override val id = params.spec.id
+    override val description = params.spec.description
+    override val validatedAgainstPsg = params.spec.validatedAgainstPsg
 
     private val k = SleepStage.entries.size
     private var alpha = params.initial.copyOf()
@@ -88,7 +91,10 @@ class HmmStageEstimator(private val params: HmmParams = HmmParams.Default) : Sta
         for (f in params.features) {
             supportMax += f.weight
             val obs = f.observe(features) ?: continue
-            val w = f.weight * features.quality.toDouble() * (if (f.needsBaseline && !features.baselineReady) 0.5 else 1.0)
+            // quality describes the heart-rate signal; movement stays informative when the pulse drops
+            // out (it usually drops out *because* of movement), unless the watch is off the wrist.
+            val reliability = if (f.fromHeart) features.quality.toDouble() else if (features.contactLost) 0.0 else 1.0
+            val w = f.weight * reliability * (if (f.needsBaseline && !features.baselineReady) 0.5 else 1.0)
             if (w <= 0.0) continue
             val ll = DoubleArray(k) { s -> f.logLikelihood(obs, s) }
             val top = ll.max()
@@ -133,41 +139,40 @@ class HmmStageEstimator(private val params: HmmParams = HmmParams.Default) : Sta
     }
 }
 
-/** Parameters of [HmmStageEstimator]. Index order follows [SleepStage.ordinal]: W, L, D, R. */
-class HmmParams(
-    val initial: DoubleArray,
-    val features: List<FeatureModel>,
+/**
+ * Serializable description of an [HmmStageEstimator], hand-set or fitted. Index order of every
+ * per-stage list follows [SleepStage.ordinal]: wake, light, deep, REM.
+ */
+@Serializable
+data class HmmSpec(
+    val id: String,
+    val description: String,
+    val validatedAgainstPsg: Boolean = false,
+    val initial: List<Double>,
+    val features: List<FeatureSpec>,
+    val transitions: TransitionSpec = TransitionSpec.Heuristic,
     val maxLogLrPerFeature: Double = 4.0,
 ) {
-    /** Per-epoch transition matrix [from][to] given hours since sleep onset (null = not yet asleep). */
-    fun transitions(hours: Float?): Array<DoubleArray> {
-        val h = (hours ?: 0f).toDouble()
-        val asleep = hours != null
-        val w = SleepStage.WAKE.ordinal
-        val l = SleepStage.LIGHT.ordinal
-        val d = SleepStage.DEEP.ordinal
-        val r = SleepStage.REM.ordinal
-        val m = Array(4) { DoubleArray(4) }
-        // Wake: long in-bed wake before sleep onset, brief awakenings afterwards.
-        m[w][l] = if (asleep) 0.15 else 0.04
-        m[w][r] = if (asleep) 0.01 else 0.0
-        // Light: deep sleep likely early, REM increasingly likely after the first cycle.
-        m[l][w] = 0.012
-        m[l][d] = 0.035 * exp(-h / 2.0) + 0.002
-        m[l][r] = 0.002 + 0.012 * sigmoid((h - 1.0) / 0.3)
-        // Deep
-        m[d][l] = 0.03
-        m[d][w] = 0.004
-        m[d][r] = 0.001
-        // REM: short periods early (~10 min), long periods late (~25 min).
-        m[r][l] = 0.045 * exp(-h / 2.5) + 0.008
-        m[r][w] = 0.008
-        for (i in 0 until 4) m[i][i] = 1.0 - m[i].sum()
-        return m
-    }
+    fun toParams() = HmmParams(this)
 
     companion object {
-        private fun sigmoid(x: Double) = 1.0 / (1.0 + exp(-x))
+        val json = Json {
+            classDiscriminator = "kind"
+            encodeDefaults = true
+            ignoreUnknownKeys = true
+            prettyPrint = true
+        }
+
+        fun parse(text: String): HmmSpec = json.decodeFromString(serializer(), text)
+
+        /**
+         * The default: fitted on 31 sleep-lab nights with wrist heart rate and motion (Walch et al. 2019),
+         * tested leave-one-subject-out. See docs/MODEL.md; refit with `core/eval walch`.
+         */
+        val Walch: HmmSpec by lazy { bundled("hmm-walch-v1.json") }
+
+        private fun bundled(name: String): HmmSpec =
+            parse(HmmSpec::class.java.getResourceAsStream(name)!!.bufferedReader().use { it.readText() })
 
         /**
          * Starting priors, set from published stage physiology:
@@ -175,62 +180,157 @@ class HmmParams(
          *   (Herzig 2018); mean HR in REM is only ~4 % above NREM.
          * - RMSSD findings conflict (Herzig 2018 finds REM higher than N2/N3), so it carries little weight.
          * - Movement: wake > N1 > N2 > REM > N3.
-         * Magnitudes are guesses until fitted on PSG-labelled wrist data (see docs/RESEARCH.md).
+         * Magnitudes are guesses (see docs/RESEARCH.md). Kept as the baseline the fitted model is
+         * compared with, and as the template (features, bins) that `core/eval walch` fits.
          */
-        val Default = HmmParams(
-            initial = doubleArrayOf(0.90, 0.08, 0.01, 0.01),
+        val HandSet = HmmSpec(
+            id = "hmm-heuristic-v1",
+            description = "HMM forward filter, hand-set priors (uncalibrated)",
+            initial = listOf(0.90, 0.08, 0.01, 0.01),
             features = listOf(
-                FeatureModel.Gaussian(
-                    "hrRel", weight = 0.8, needsBaseline = true,
-                    means = doubleArrayOf(10.0, 2.0, 0.5, 4.5), sds = doubleArrayOf(6.0, 3.0, 2.5, 3.5),
-                ) { it.hrRel?.toDouble() },
+                FeatureSpec.Gaussian("hrRel", 0.8, needsBaseline = true, means = listOf(10.0, 2.0, 0.5, 4.5), sds = listOf(6.0, 3.0, 2.5, 3.5)),
                 // ln-ratio to tonight's quiet median; Herzig 2018 SDNN gives REM ~ +0.4, N3 ~ -0.25 vs N2.
-                FeatureModel.Gaussian(
-                    "hrInstability", weight = 1.2, needsBaseline = true,
-                    means = doubleArrayOf(0.7, 0.0, -0.3, 0.45), sds = doubleArrayOf(0.45, 0.3, 0.3, 0.3),
-                ) { it.hrInstabilityRel?.toDouble() },
-                FeatureModel.Gaussian(
-                    "lnRmssdRel", weight = 0.4, needsBaseline = true,
-                    means = doubleArrayOf(-0.3, 0.0, 0.1, 0.0), sds = doubleArrayOf(0.35, 0.3, 0.3, 0.35),
-                ) { it.lnRmssdRel?.toDouble() },
-                FeatureModel.Categorical(
-                    "movement", weight = 1.0,
-                    // P(activeSeconds = 0 | 1-2 | 3+) per stage
-                    table = arrayOf(
-                        doubleArrayOf(0.45, 0.25, 0.30),
-                        doubleArrayOf(0.90, 0.07, 0.03),
-                        doubleArrayOf(0.97, 0.025, 0.005),
-                        doubleArrayOf(0.93, 0.05, 0.02),
-                    ),
-                ) { f -> if (f.motionCoverage < 0.3f) null else when (f.activeSeconds) { 0 -> 0; 1, 2 -> 1; else -> 2 } },
-                FeatureModel.Categorical(
-                    "stillness", weight = 0.5,
-                    // P(minutes since movement < 2 | 2-10 | > 10) per stage
-                    table = arrayOf(
-                        doubleArrayOf(0.60, 0.30, 0.10),
-                        doubleArrayOf(0.25, 0.40, 0.35),
-                        doubleArrayOf(0.10, 0.30, 0.60),
-                        doubleArrayOf(0.20, 0.45, 0.35),
-                    ),
-                ) { f -> f.minutesSinceMovement?.let { if (it < 2f) 0 else if (it < 10f) 1 else 2 } },
+                FeatureSpec.Gaussian("hrInstability", 1.2, needsBaseline = true, means = listOf(0.7, 0.0, -0.3, 0.45), sds = listOf(0.45, 0.3, 0.3, 0.3)),
+                FeatureSpec.Gaussian("lnRmssdRel", 0.4, needsBaseline = true, means = listOf(-0.3, 0.0, 0.1, 0.0), sds = listOf(0.35, 0.3, 0.3, 0.35)),
+                // P(active seconds = 0 | 1-2 | 3+) per stage
+                FeatureSpec.Categorical(
+                    "movement", 1.0, edges = listOf(0.5, 2.5),
+                    table = listOf(listOf(0.45, 0.25, 0.30), listOf(0.90, 0.07, 0.03), listOf(0.97, 0.025, 0.005), listOf(0.93, 0.05, 0.02)),
+                ),
+                // P(minutes since movement < 2 | 2-10 | > 10) per stage
+                FeatureSpec.Categorical(
+                    "stillness", 0.5, edges = listOf(2.0, 10.0),
+                    table = listOf(listOf(0.60, 0.30, 0.10), listOf(0.25, 0.40, 0.35), listOf(0.10, 0.30, 0.60), listOf(0.20, 0.45, 0.35)),
+                ),
             ),
         )
     }
 }
 
+@Serializable
+sealed interface FeatureSpec {
+    val name: String
+    val weight: Double
+
+    @Serializable
+    @SerialName("gaussian")
+    data class Gaussian(
+        override val name: String,
+        override val weight: Double,
+        val needsBaseline: Boolean = false,
+        val means: List<Double>,
+        val sds: List<Double>,
+    ) : FeatureSpec
+
+    /** Value binned by [edges] (bin = number of edges <= value); one probability row per stage. */
+    @Serializable
+    @SerialName("categorical")
+    data class Categorical(
+        override val name: String,
+        override val weight: Double,
+        val edges: List<Double>,
+        val table: List<List<Double>>,
+    ) : FeatureSpec
+}
+
+@Serializable
+sealed interface TransitionSpec {
+    /** Hand-written functions of hours since sleep onset (deep early, longer REM late). */
+    @Serializable
+    @SerialName("heuristic")
+    data object Heuristic : TransitionSpec
+
+    /** Matrices counted from scored hypnograms: one before sleep onset, then one per hour band. */
+    @Serializable
+    @SerialName("binned")
+    data class Binned(
+        val preOnset: List<List<Double>>,
+        val hourEdges: List<Double>,
+        val byHour: List<List<List<Double>>>,
+    ) : TransitionSpec
+}
+
+/** The epoch values a [FeatureSpec] can refer to, by name. */
+object FeatureValues {
+    private val extractors: Map<String, (EpochFeatures) -> Double?> = mapOf(
+        "hrRel" to { f -> f.hrRel?.toDouble() },
+        "hrInstability" to { f -> f.hrInstabilityRel?.toDouble() },
+        "lnRmssdRel" to { f -> f.lnRmssdRel?.toDouble() },
+        "movement" to { f -> if (f.motionCoverage < 0.3f) null else f.activeSeconds.toDouble() },
+        "stillness" to { f -> f.minutesSinceMovement?.toDouble() },
+    )
+
+    val names: Set<String> get() = extractors.keys
+
+    /** Features computed from the accelerometer; the rest come from the heart-rate sensor. */
+    val fromMotion: Set<String> = setOf("movement", "stillness")
+
+    fun of(name: String): (EpochFeatures) -> Double? = extractors[name] ?: error("unknown feature '$name'")
+}
+
+/** Ready-to-use parameters of [HmmStageEstimator], built from an [HmmSpec]. */
+class HmmParams(val spec: HmmSpec) {
+    val initial: DoubleArray = spec.initial.toDoubleArray()
+    val features: List<FeatureModel> = spec.features.map(FeatureModel::from)
+    val maxLogLrPerFeature: Double get() = spec.maxLogLrPerFeature
+
+    private val binned = spec.transitions as? TransitionSpec.Binned
+    private val preOnset = binned?.preOnset?.let(::matrix)
+    private val byHour = binned?.byHour?.map(::matrix)
+
+    /** Per-epoch transition matrix [from][to] given hours since sleep onset (null = not yet asleep). */
+    fun transitions(hours: Float?): Array<DoubleArray> = when {
+        binned == null -> heuristic(hours)
+        hours == null -> preOnset!!
+        else -> byHour!![binned.hourEdges.count { hours >= it }.coerceAtMost(byHour.lastIndex)]
+    }
+
+    companion object {
+        val Default: HmmParams by lazy { HmmParams(HmmSpec.Walch) }
+
+        private fun matrix(rows: List<List<Double>>) = Array(rows.size) { rows[it].toDoubleArray() }
+
+        private fun sigmoid(x: Double) = 1.0 / (1.0 + exp(-x))
+
+        fun heuristic(hours: Float?): Array<DoubleArray> {
+            val h = (hours ?: 0f).toDouble()
+            val asleep = hours != null
+            val w = SleepStage.WAKE.ordinal
+            val l = SleepStage.LIGHT.ordinal
+            val d = SleepStage.DEEP.ordinal
+            val r = SleepStage.REM.ordinal
+            val m = Array(4) { DoubleArray(4) }
+            // Wake: long in-bed wake before sleep onset, brief awakenings afterwards.
+            m[w][l] = if (asleep) 0.15 else 0.04
+            m[w][r] = if (asleep) 0.01 else 0.0
+            // Light: deep sleep likely early, REM increasingly likely after the first cycle.
+            m[l][w] = 0.012
+            m[l][d] = 0.035 * exp(-h / 2.0) + 0.002
+            m[l][r] = 0.002 + 0.012 * sigmoid((h - 1.0) / 0.3)
+            // Deep
+            m[d][l] = 0.03
+            m[d][w] = 0.004
+            m[d][r] = 0.001
+            // REM: short periods early (~10 min), long periods late (~25 min).
+            m[r][l] = 0.045 * exp(-h / 2.5) + 0.008
+            m[r][w] = 0.008
+            for (i in 0 until 4) m[i][i] = 1.0 - m[i].sum()
+            return m
+        }
+    }
+}
+
 /** Likelihood model for one feature. */
 sealed class FeatureModel(val name: String, val weight: Double, val needsBaseline: Boolean) {
+    val fromHeart: Boolean = name !in FeatureValues.fromMotion
+
     abstract fun observe(f: EpochFeatures): Double?
     abstract fun logLikelihood(x: Double, stage: Int): Double
 
-    class Gaussian(
-        name: String,
-        weight: Double,
-        needsBaseline: Boolean = false,
-        private val means: DoubleArray,
-        private val sds: DoubleArray,
-        private val extract: (EpochFeatures) -> Double?,
-    ) : FeatureModel(name, weight, needsBaseline) {
+    class Gaussian(private val spec: FeatureSpec.Gaussian) : FeatureModel(spec.name, spec.weight, spec.needsBaseline) {
+        private val extract = FeatureValues.of(spec.name)
+        private val means = spec.means.toDoubleArray()
+        private val sds = spec.sds.toDoubleArray()
         override fun observe(f: EpochFeatures) = extract(f)
         override fun logLikelihood(x: Double, stage: Int): Double {
             val z = (x - means[stage]) / sds[stage]
@@ -238,13 +338,17 @@ sealed class FeatureModel(val name: String, val weight: Double, val needsBaselin
         }
     }
 
-    class Categorical(
-        name: String,
-        weight: Double,
-        private val table: Array<DoubleArray>,
-        private val extract: (EpochFeatures) -> Int?,
-    ) : FeatureModel(name, weight, needsBaseline = false) {
-        override fun observe(f: EpochFeatures) = extract(f)?.toDouble()
+    class Categorical(private val spec: FeatureSpec.Categorical) : FeatureModel(spec.name, spec.weight, needsBaseline = false) {
+        private val extract = FeatureValues.of(spec.name)
+        private val table = Array(spec.table.size) { spec.table[it].toDoubleArray() }
+        override fun observe(f: EpochFeatures) = extract(f)?.let { v -> spec.edges.count { v >= it }.toDouble() }
         override fun logLikelihood(x: Double, stage: Int) = ln(table[stage][x.toInt()])
+    }
+
+    companion object {
+        fun from(spec: FeatureSpec): FeatureModel = when (spec) {
+            is FeatureSpec.Gaussian -> Gaussian(spec)
+            is FeatureSpec.Categorical -> Categorical(spec)
+        }
     }
 }

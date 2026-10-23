@@ -38,22 +38,28 @@ Time: every component uses sample timestamps. "Now" comes from a `Clock`: the si
 clock in-app, the watch-reported `sentAt` for a watch-side simulation, wall time for real
 sensors. That is what makes 240x replay behave exactly like a real night.
 
-## Estimator (`HmmStageEstimator`, id `hmm-heuristic-v1`)
+## Estimator (`HmmStageEstimator`, id `hmm-walch-v1`)
 
 - Four hidden states, 30 s epochs, causal forward filter (live decisions can't use the future).
 - Transition matrix changes with hours since estimated sleep onset: deep sleep likely early, REM
   entry likelier and REM periods longer late in the night.
-- Emissions: naive-Bayes product of per-feature likelihoods: `hrRel` (bpm above tonight's quiet
+- Emissions: naive-Bayes product of per-feature histograms: `hrRel` (bpm above tonight's quiet
   baseline), `hrInstability` (ln ratio of 2.5-min HR SD to tonight's quiet median; the strongest
-  REM cue in the literature), `lnRmssdRel` (low weight, the literature disagrees), movement
-  (categorical), stillness (categorical).
-- Each feature's influence is bounded (±4 log units) and weighted by signal quality. Missing
-  features drop out, so gaps drift the estimate back to the prior instead of inventing evidence.
+  signal in the lab data), movement (seconds above the wrist's resting level), stillness (minutes
+  since the last movement). `lnRmssdRel` is supported but unused: the fitting data has no beat
+  intervals.
+- Each feature has a fitted weight (the heart-rate features overlap in time, so their evidence is
+  down-weighted) and a bound of ±4 log units. Heart-rate features are also scaled by signal
+  quality; motion features count fully unless the watch is off the wrist. Missing features drop
+  out, so gaps drift the estimate back to the prior instead of inventing evidence.
 - Output per epoch: four probabilities, a confidence (data support × decisiveness), and each
   feature's evidence for/against REM, shown in the night report's epoch inspector.
-- **Not fitted to data.** Parameters are literature-informed guesses. Replacing them is the first
-  job once real recordings exist (see RESEARCH.md, datasets). `StageEstimator` is an interface, so
-  a fitted HMM, a gradient-boosted model or an on-device neural net can be dropped in.
+- **Fitted on 31 sleep-lab nights** (Walch et al. 2019, Apple Watch) and tested leave-one-subject-out:
+  kappa 0.40, 85 % of would-be cues in REM. Not validated on a Galaxy Watch. Details, charts and
+  how to refit: [MODEL.md](MODEL.md). The parameters live in a JSON spec
+  (`core/engine/src/main/resources/lucid/core/engine/hmm-walch-v1.json`); the original hand-set
+  model remains as `HmmSpec.HandSet`. `StageEstimator` is an interface, so a gradient-boosted
+  model or an on-device neural net can be dropped in.
 
 Sleep onset = start of the first 10 minutes in which every epoch has p(wake) < 0.5.
 
@@ -69,7 +75,7 @@ failed, or delivered / "would deliver" (baseline nights). Rules:
 | Sleep onset known, hours since onset | ≥ 5 h | Late REM is longer; lucidity induction works better late |
 | Confidence | ≥ 0.45 | |
 | Signal quality (last 2 epochs) | ≥ 0.5 | |
-| REM sustained | ≥ 5 min, **restarted by any movement** | Estimates lag; movements mark stage transitions |
+| REM sustained | ≥ 5 min, **restarted by any movement or an epoch without usable heart rate** | Estimates lag; movements mark stage transitions; without fresh data the filter only repeats its last state |
 | p(wake) | ≤ 0.20 | |
 | No movement for | 2 min | |
 | Pause after suspected arousal | 15 min | |

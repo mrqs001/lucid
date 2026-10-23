@@ -9,9 +9,10 @@ while awake ("targeted lucidity reactivation"), so that in a dream it can trigge
 "am I dreaming?".
 
 > **Status:** first version. Runs end to end on the Android and Wear OS emulators and on a real
-> Galaxy Watch7 + Android 16 phone (heart rate, beat-to-beat intervals, movement, cues). No full
-> night has been recorded on real hardware yet, and the REM estimator is a hand-tuned,
-> **unvalidated** model. See [docs/STATUS.md](docs/STATUS.md) for what is verified where.
+> Galaxy Watch7 + Android 16 phone (heart rate, beat-to-beat intervals, movement, cues), including
+> full recorded nights. The stage model is fitted on 31 sleep-lab nights from another watch
+> (85 % of would-be cues land in REM when tested on nights it never saw) but is **not validated on
+> the Galaxy Watch**. See [docs/MODEL.md](docs/MODEL.md) and [docs/STATUS.md](docs/STATUS.md).
 
 ## Screenshots
 
@@ -26,7 +27,7 @@ Phone screens are from the emulator replaying a simulated night, hence the "SIMU
 | `core/model` | Measurement types and the watch/phone wire protocol (pure Kotlin) |
 | `core/engine` | The pipeline: validation, 30 s epochs, features, HMM REM estimator, cue policy (pure Kotlin, no simulator access) |
 | `core/sim` | Deterministic night simulator: 7 scenarios, seeded, with a simulated watch that buffers and backfills |
-| `core/eval` | Command-line replay of simulated nights through the real pipeline |
+| `core/eval` | Command-line tools: replay simulated or recorded nights, fit and test the stage model on sleep-lab data |
 | `app` | Android phone app: live monitoring, cueing, night reports, dream journal, training, experiments, statistics |
 | `wear` | Wear OS watch app: sensor collection, uplink with acknowledgements, vibration cues |
 
@@ -65,6 +66,7 @@ minutes at 240x. Details, including running phone and watch emulators together, 
 
 - [docs/STATUS.md](docs/STATUS.md): what works in the emulator, on synthetic data only, awaiting hardware, or blocked
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): modules, pipeline, estimator, cue policy, protocol, storage
+- [docs/MODEL.md](docs/MODEL.md): the stage model, how it was fitted on sleep-lab nights, results and limits
 - [docs/EMULATORS.md](docs/EMULATORS.md): build, run and test without a watch
 - [docs/HARDWARE.md](docs/HARDWARE.md): bringing up the Galaxy Watch 7 (Samsung Health Sensor SDK, permissions, checks)
 - [docs/DATA.md](docs/DATA.md): pull the phone's database and read any night (`scripts/lucid-pull.sh`, `tools/night_report.py`)
@@ -77,7 +79,7 @@ minutes at 240x. Details, including running phone and watch emulators together, 
 
 ## Safety and honesty
 
-- Not a medical device. Stage estimates are probabilistic and unvalidated.
+- Not a medical device. Stage estimates are probabilistic and not validated on the Galaxy Watch.
 - Simulated data is labelled as such everywhere and excluded from statistics by default.
 - Vibration can wake you. Defaults are conservative (no cues in the first 5 h, sustained REM
   required, movement lockouts, caps, intensity backs off after any sign of arousal).

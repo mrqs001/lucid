@@ -191,7 +191,7 @@ fun TonightScreen(nav: Nav) {
                             wouldDeliver = if (night.hidden) emptySet() else night.epochIndexes(CueAction.WOULD_DELIVER),
                         )
                         Text(
-                            "Stages and REM probability are estimates from an uncalibrated experimental model, not a medical measurement.",
+                            "Stages and REM probability are estimates from an experimental model fitted on sleep-lab data from another watch, not a medical measurement.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )

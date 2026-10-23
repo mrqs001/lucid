@@ -15,3 +15,5 @@ wear/libs/*.aar
 wear/libs/*.zip
 /data/
 /output/
+/datasets/
+/sleep-analysis-*.zip

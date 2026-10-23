@@ -1,0 +1,860 @@
+{
+    "dataset": "Walch et al. 2019, sleep-accel 1.0.0 (PhysioNet): Apple Watch heart rate (~0.2 Hz, interpolated to 1 Hz) and accelerometer, PSG labels",
+    "subjects": 31,
+    "evaluation": "leave-one-subject-out; 4 classes (wake, light = N1+N2, deep = N3/N4, REM); unscored epochs excluded",
+    "models": {
+        "hand-set": {
+            "epochs": 25946,
+            "accuracy": 0.42407307484776074,
+            "kappa": 0.21563567815533752,
+            "confusion": [
+                [
+                    1203,
+                    540,
+                    308,
+                    206
+                ],
+                [
+                    2607,
+                    5038,
+                    4363,
+                    2446
+                ],
+                [
+                    119,
+                    784,
+                    2306,
+                    360
+                ],
+                [
+                    1834,
+                    1207,
+                    169,
+                    2456
+                ]
+            ],
+            "sensitivity": {
+                "wake": 0.5330084182543199,
+                "light": 0.3485540334855403,
+                "deep": 0.6461193611655927,
+                "rem": 0.43346276032474407
+            },
+            "precision": {
+                "wake": 0.20874544508068715,
+                "light": 0.6656097238736953,
+                "deep": 0.3226980128743353,
+                "rem": 0.4491587417702999
+            },
+            "remF1": 0.4411711873540506,
+            "sustainedRemEpochs": 2806,
+            "sustainedRemPrecision": 0.5531004989308624,
+            "sustainedRemCoverage": 0.2739145781856689,
+            "wouldCue": 146,
+            "wouldCueInRem": 0.6643835616438356,
+            "wouldCueByStage": {
+                "wake": 0,
+                "light": 49,
+                "deep": 0,
+                "rem": 97
+            },
+            "wouldCueAllNight": 362,
+            "wouldCueAllNightInRem": 0.5580110497237569,
+            "wouldCueAllNightByHour": [
+                {
+                    "hoursSinceOnset": 0,
+                    "cues": 5,
+                    "inRem": 0.0
+                },
+                {
+                    "hoursSinceOnset": 1,
+                    "cues": 64,
+                    "inRem": 0.28125
+                },
+                {
+                    "hoursSinceOnset": 2,
+                    "cues": 76,
+                    "inRem": 0.4342105263157895
+                },
+                {
+                    "hoursSinceOnset": 3,
+                    "cues": 55,
+                    "inRem": 0.7454545454545455
+                },
+                {
+                    "hoursSinceOnset": 4,
+                    "cues": 47,
+                    "inRem": 0.723404255319149
+                },
+                {
+                    "hoursSinceOnset": 5,
+                    "cues": 40,
+                    "inRem": 0.6
+                },
+                {
+                    "hoursSinceOnset": 6,
+                    "cues": 41,
+                    "inRem": 0.6829268292682927
+                },
+                {
+                    "hoursSinceOnset": 7,
+                    "cues": 34,
+                    "inRem": 0.7058823529411765
+                }
+            ]
+        },
+        "fitted": {
+            "epochs": 25946,
+            "accuracy": 0.5418561627996609,
+            "kappa": 0.34580290726771795,
+            "confusion": [
+                [
+                    1387,
+                    519,
+                    132,
+                    219
+                ],
+                [
+                    1723,
+                    6843,
+                    3979,
+                    1909
+                ],
+                [
+                    54,
+                    410,
+                    2839,
+                    266
+                ],
+                [
+                    620,
+                    1674,
+                    382,
+                    2990
+                ]
+            ],
+            "sensitivity": {
+                "wake": 0.6145325653522374,
+                "light": 0.4734329597343296,
+                "deep": 0.7954609134211263,
+                "rem": 0.5277091422520297
+            },
+            "precision": {
+                "wake": 0.3665433403805497,
+                "light": 0.724433622697438,
+                "deep": 0.3872067648663393,
+                "rem": 0.5553491827637445
+            },
+            "remF1": 0.5411764705882354,
+            "sustainedRemEpochs": 3105,
+            "sustainedRemPrecision": 0.6518518518518519,
+            "sustainedRemCoverage": 0.35721849629368163,
+            "wouldCue": 137,
+            "wouldCueInRem": 0.7883211678832117,
+            "wouldCueByStage": {
+                "wake": 4,
+                "light": 25,
+                "deep": 0,
+                "rem": 108
+            },
+            "wouldCueAllNight": 341,
+            "wouldCueAllNightInRem": 0.7038123167155426,
+            "wouldCueAllNightByHour": [
+                {
+                    "hoursSinceOnset": 0,
+                    "cues": 19,
+                    "inRem": 0.5789473684210527
+                },
+                {
+                    "hoursSinceOnset": 1,
+                    "cues": 77,
+                    "inRem": 0.5844155844155844
+                },
+                {
+                    "hoursSinceOnset": 2,
+                    "cues": 92,
+                    "inRem": 0.7065217391304348
+                },
+                {
+                    "hoursSinceOnset": 3,
+                    "cues": 29,
+                    "inRem": 0.9310344827586207
+                },
+                {
+                    "hoursSinceOnset": 4,
+                    "cues": 35,
+                    "inRem": 0.7428571428571429
+                },
+                {
+                    "hoursSinceOnset": 5,
+                    "cues": 41,
+                    "inRem": 0.8048780487804879
+                },
+                {
+                    "hoursSinceOnset": 6,
+                    "cues": 35,
+                    "inRem": 0.7714285714285715
+                },
+                {
+                    "hoursSinceOnset": 7,
+                    "cues": 13,
+                    "inRem": 0.46153846153846156
+                }
+            ]
+        },
+        "fitted, hand-set transitions": {
+            "epochs": 25946,
+            "accuracy": 0.5263624450782394,
+            "kappa": 0.32269566427155066,
+            "confusion": [
+                [
+                    1182,
+                    783,
+                    107,
+                    185
+                ],
+                [
+                    1695,
+                    6696,
+                    4165,
+                    1898
+                ],
+                [
+                    62,
+                    425,
+                    2799,
+                    283
+                ],
+                [
+                    694,
+                    1594,
+                    398,
+                    2980
+                ]
+            ],
+            "sensitivity": {
+                "wake": 0.5237040319007532,
+                "light": 0.46326276463262767,
+                "deep": 0.7842532922387223,
+                "rem": 0.5259442287327921
+            },
+            "precision": {
+                "wake": 0.32535094962840627,
+                "light": 0.7049905243209097,
+                "deep": 0.37474896237782834,
+                "rem": 0.5574261129816686
+            },
+            "remF1": 0.5412277515437705,
+            "sustainedRemEpochs": 3530,
+            "sustainedRemPrecision": 0.6368271954674221,
+            "sustainedRemCoverage": 0.3967525591246029,
+            "wouldCue": 150,
+            "wouldCueInRem": 0.82,
+            "wouldCueByStage": {
+                "wake": 2,
+                "light": 25,
+                "deep": 0,
+                "rem": 123
+            },
+            "wouldCueAllNight": 355,
+            "wouldCueAllNightInRem": 0.704225352112676,
+            "wouldCueAllNightByHour": [
+                {
+                    "hoursSinceOnset": 0,
+                    "cues": 7,
+                    "inRem": 0.0
+                },
+                {
+                    "hoursSinceOnset": 1,
+                    "cues": 78,
+                    "inRem": 0.5897435897435898
+                },
+                {
+                    "hoursSinceOnset": 2,
+                    "cues": 81,
+                    "inRem": 0.7037037037037037
+                },
+                {
+                    "hoursSinceOnset": 3,
+                    "cues": 56,
+                    "inRem": 0.7678571428571429
+                },
+                {
+                    "hoursSinceOnset": 4,
+                    "cues": 34,
+                    "inRem": 0.6764705882352942
+                },
+                {
+                    "hoursSinceOnset": 5,
+                    "cues": 35,
+                    "inRem": 1.0
+                },
+                {
+                    "hoursSinceOnset": 6,
+                    "cues": 42,
+                    "inRem": 0.8333333333333334
+                },
+                {
+                    "hoursSinceOnset": 7,
+                    "cues": 22,
+                    "inRem": 0.5
+                }
+            ]
+        },
+        "fitted, histograms": {
+            "epochs": 25946,
+            "accuracy": 0.544746781777538,
+            "kappa": 0.3566035293631784,
+            "confusion": [
+                [
+                    1429,
+                    426,
+                    108,
+                    294
+                ],
+                [
+                    1984,
+                    6556,
+                    3166,
+                    2748
+                ],
+                [
+                    64,
+                    482,
+                    2671,
+                    352
+                ],
+                [
+                    671,
+                    1290,
+                    227,
+                    3478
+                ]
+            ],
+            "sensitivity": {
+                "wake": 0.6331413380593709,
+                "light": 0.4535768645357686,
+                "deep": 0.7483889044550294,
+                "rem": 0.6138369219908224
+            },
+            "precision": {
+                "wake": 0.34450337512054,
+                "light": 0.7489147818140278,
+                "deep": 0.4327608554763448,
+                "rem": 0.5061117578579744
+            },
+            "remF1": 0.5547934279789439,
+            "sustainedRemEpochs": 4328,
+            "sustainedRemPrecision": 0.5880314232902033,
+            "sustainedRemCoverage": 0.4491704906459584,
+            "wouldCue": 157,
+            "wouldCueInRem": 0.7452229299363057,
+            "wouldCueByStage": {
+                "wake": 1,
+                "light": 39,
+                "deep": 0,
+                "rem": 117
+            },
+            "wouldCueAllNight": 430,
+            "wouldCueAllNightInRem": 0.6627906976744186,
+            "wouldCueAllNightByHour": [
+                {
+                    "hoursSinceOnset": 0,
+                    "cues": 26,
+                    "inRem": 0.46153846153846156
+                },
+                {
+                    "hoursSinceOnset": 1,
+                    "cues": 107,
+                    "inRem": 0.5514018691588785
+                },
+                {
+                    "hoursSinceOnset": 2,
+                    "cues": 120,
+                    "inRem": 0.5666666666666667
+                },
+                {
+                    "hoursSinceOnset": 3,
+                    "cues": 52,
+                    "inRem": 0.8269230769230769
+                },
+                {
+                    "hoursSinceOnset": 4,
+                    "cues": 36,
+                    "inRem": 0.8333333333333334
+                },
+                {
+                    "hoursSinceOnset": 5,
+                    "cues": 42,
+                    "inRem": 0.7857142857142857
+                },
+                {
+                    "hoursSinceOnset": 6,
+                    "cues": 31,
+                    "inRem": 0.7741935483870968
+                },
+                {
+                    "hoursSinceOnset": 7,
+                    "cues": 16,
+                    "inRem": 1.0
+                }
+            ]
+        },
+        "fitted, tuned weights": {
+            "epochs": 25946,
+            "accuracy": 0.5870269020272875,
+            "kappa": 0.3730015058556182,
+            "confusion": [
+                [
+                    1408,
+                    628,
+                    104,
+                    117
+                ],
+                [
+                    1707,
+                    8556,
+                    2887,
+                    1304
+                ],
+                [
+                    140,
+                    498,
+                    2696,
+                    235
+                ],
+                [
+                    449,
+                    2554,
+                    92,
+                    2571
+                ]
+            ],
+            "sensitivity": {
+                "wake": 0.6238369517058041,
+                "light": 0.5919468659194687,
+                "deep": 0.7553936676940319,
+                "rem": 0.453759265795976
+            },
+            "precision": {
+                "wake": 0.3801295896328294,
+                "light": 0.6992481203007519,
+                "deep": 0.466516698390725,
+                "rem": 0.6082327892122072
+            },
+            "remF1": 0.5197614474881229,
+            "sustainedRemEpochs": 2035,
+            "sustainedRemPrecision": 0.6113022113022113,
+            "sustainedRemCoverage": 0.21955524179315214,
+            "wouldCue": 80,
+            "wouldCueInRem": 0.7875,
+            "wouldCueByStage": {
+                "wake": 2,
+                "light": 15,
+                "deep": 0,
+                "rem": 63
+            },
+            "wouldCueAllNight": 227,
+            "wouldCueAllNightInRem": 0.6828193832599119,
+            "wouldCueAllNightByHour": [
+                {
+                    "hoursSinceOnset": 0,
+                    "cues": 12,
+                    "inRem": 0.5833333333333334
+                },
+                {
+                    "hoursSinceOnset": 1,
+                    "cues": 61,
+                    "inRem": 0.639344262295082
+                },
+                {
+                    "hoursSinceOnset": 2,
+                    "cues": 55,
+                    "inRem": 0.6
+                },
+                {
+                    "hoursSinceOnset": 3,
+                    "cues": 18,
+                    "inRem": 0.9444444444444444
+                },
+                {
+                    "hoursSinceOnset": 4,
+                    "cues": 22,
+                    "inRem": 0.5454545454545454
+                },
+                {
+                    "hoursSinceOnset": 5,
+                    "cues": 26,
+                    "inRem": 0.8846153846153846
+                },
+                {
+                    "hoursSinceOnset": 6,
+                    "cues": 23,
+                    "inRem": 0.8695652173913043
+                },
+                {
+                    "hoursSinceOnset": 7,
+                    "cues": 10,
+                    "inRem": 0.4
+                }
+            ]
+        },
+        "fitted, histograms, tuned weights": {
+            "epochs": 25946,
+            "accuracy": 0.6033685346488862,
+            "kappa": 0.4015684269373242,
+            "confusion": [
+                [
+                    1404,
+                    568,
+                    90,
+                    195
+                ],
+                [
+                    1735,
+                    8598,
+                    2181,
+                    1940
+                ],
+                [
+                    158,
+                    670,
+                    2495,
+                    246
+                ],
+                [
+                    477,
+                    1900,
+                    131,
+                    3158
+                ]
+            ],
+            "sensitivity": {
+                "wake": 0.6220646876384581,
+                "light": 0.5948526359485263,
+                "deep": 0.6990753712524517,
+                "rem": 0.5573596893752206
+            },
+            "precision": {
+                "wake": 0.37201907790143085,
+                "light": 0.7326175869120655,
+                "deep": 0.5094956095568716,
+                "rem": 0.5701390142625022
+            },
+            "remF1": 0.5636769299419903,
+            "sustainedRemEpochs": 2917,
+            "sustainedRemPrecision": 0.6606102159753171,
+            "sustainedRemCoverage": 0.3400988351570773,
+            "wouldCue": 116,
+            "wouldCueInRem": 0.853448275862069,
+            "wouldCueByStage": {
+                "wake": 4,
+                "light": 13,
+                "deep": 0,
+                "rem": 99
+            },
+            "wouldCueAllNight": 329,
+            "wouldCueAllNightInRem": 0.7477203647416414,
+            "wouldCueAllNightByHour": [
+                {
+                    "hoursSinceOnset": 0,
+                    "cues": 14,
+                    "inRem": 0.42857142857142855
+                },
+                {
+                    "hoursSinceOnset": 1,
+                    "cues": 72,
+                    "inRem": 0.6527777777777778
+                },
+                {
+                    "hoursSinceOnset": 2,
+                    "cues": 77,
+                    "inRem": 0.7272727272727273
+                },
+                {
+                    "hoursSinceOnset": 3,
+                    "cues": 46,
+                    "inRem": 0.717391304347826
+                },
+                {
+                    "hoursSinceOnset": 4,
+                    "cues": 31,
+                    "inRem": 0.9032258064516129
+                },
+                {
+                    "hoursSinceOnset": 5,
+                    "cues": 42,
+                    "inRem": 0.9285714285714286
+                },
+                {
+                    "hoursSinceOnset": 6,
+                    "cues": 30,
+                    "inRem": 0.8333333333333334
+                },
+                {
+                    "hoursSinceOnset": 7,
+                    "cues": 17,
+                    "inRem": 0.7058823529411765
+                }
+            ]
+        }
+    },
+    "logScores": {
+        "hand-set": -2.7489731014255394,
+        "fitted": -1.3862474923395418,
+        "fitted, hand-set transitions": -1.5919920978394033,
+        "fitted, histograms": -1.3646311023067392,
+        "fitted, tuned weights": -1.0007037889163464,
+        "fitted, histograms, tuned weights": -0.9689312729247961
+    },
+    "chosen": "fitted, histograms, tuned weights",
+    "perSubject": [
+        {
+            "id": "1066528",
+            "epochs": 947,
+            "remEpochs": 309,
+            "handSetKappa": 0.39868208157736307,
+            "chosenKappa": 0.5486431696355968,
+            "chosenRemF1": 0.816260162601626
+        },
+        {
+            "id": "1360686",
+            "epochs": 948,
+            "remEpochs": 208,
+            "handSetKappa": 0.2639041335472276,
+            "chosenKappa": 0.5333362085760558,
+            "chosenRemF1": 0.6516853932584269
+        },
+        {
+            "id": "1449548",
+            "epochs": 953,
+            "remEpochs": 224,
+            "handSetKappa": 0.1215265200152787,
+            "chosenKappa": 0.4458293261934355,
+            "chosenRemF1": 0.7593360995850623
+        },
+        {
+            "id": "1455390",
+            "epochs": 955,
+            "remEpochs": 180,
+            "handSetKappa": 0.08739014993437724,
+            "chosenKappa": 0.04579784130076125,
+            "chosenRemF1": 0.27076923076923076
+        },
+        {
+            "id": "1818471",
+            "epochs": 958,
+            "remEpochs": 220,
+            "handSetKappa": 0.16704610043473586,
+            "chosenKappa": 0.5615568448533157,
+            "chosenRemF1": 0.6384039900249376
+        },
+        {
+            "id": "2598705",
+            "epochs": 954,
+            "remEpochs": 251,
+            "handSetKappa": 0.15882602638648713,
+            "chosenKappa": 0.4064180088747807,
+            "chosenRemF1": 0.39226519337016574
+        },
+        {
+            "id": "2638030",
+            "epochs": 948,
+            "remEpochs": 166,
+            "handSetKappa": 0.2837833459495919,
+            "chosenKappa": 0.7099455197504813,
+            "chosenRemF1": 0.8544891640866874
+        },
+        {
+            "id": "3509524",
+            "epochs": 417,
+            "remEpochs": 48,
+            "handSetKappa": 0.1979703596981417,
+            "chosenKappa": 0.3012051557765086,
+            "chosenRemF1": 0.3902439024390244
+        },
+        {
+            "id": "3997827",
+            "epochs": 958,
+            "remEpochs": 293,
+            "handSetKappa": 0.17423471433241436,
+            "chosenKappa": 0.3441752223498794,
+            "chosenRemF1": 0.4207792207792208
+        },
+        {
+            "id": "4018081",
+            "epochs": 510,
+            "remEpochs": 35,
+            "handSetKappa": 0.1032729583730537,
+            "chosenKappa": 0.3201719723074006,
+            "chosenRemF1": 0.3975155279503106
+        },
+        {
+            "id": "4314139",
+            "epochs": 961,
+            "remEpochs": 163,
+            "handSetKappa": 0.288116945735075,
+            "chosenKappa": 0.3371280791310849,
+            "chosenRemF1": 0.5
+        },
+        {
+            "id": "4426783",
+            "epochs": 980,
+            "remEpochs": 303,
+            "handSetKappa": 0.2515589025997096,
+            "chosenKappa": 0.46239318472032487,
+            "chosenRemF1": 0.7889374090247453
+        },
+        {
+            "id": "46343",
+            "epochs": 554,
+            "remEpochs": 114,
+            "handSetKappa": 0.48678598895336644,
+            "chosenKappa": 0.5945724220869419,
+            "chosenRemF1": 0.5895953757225434
+        },
+        {
+            "id": "5132496",
+            "epochs": 465,
+            "remEpochs": 0,
+            "handSetKappa": 0.048906317174533254,
+            "chosenKappa": 0.3986704929347233,
+            "chosenRemF1": 0.0
+        },
+        {
+            "id": "5383425",
+            "epochs": 976,
+            "remEpochs": 269,
+            "handSetKappa": 0.25062849805417886,
+            "chosenKappa": 0.3004649684586187,
+            "chosenRemF1": 0.14099216710182766
+        },
+        {
+            "id": "5498603",
+            "epochs": 744,
+            "remEpochs": 98,
+            "handSetKappa": 0.3458096264053827,
+            "chosenKappa": 0.425124480403995,
+            "chosenRemF1": 0.5089285714285714
+        },
+        {
+            "id": "5797046",
+            "epochs": 939,
+            "remEpochs": 148,
+            "handSetKappa": 0.24875862728672019,
+            "chosenKappa": 0.42904106067646797,
+            "chosenRemF1": 0.5107296137339056
+        },
+        {
+            "id": "6220552",
+            "epochs": 955,
+            "remEpochs": 141,
+            "handSetKappa": 0.27323665645711986,
+            "chosenKappa": 0.43550991348948404,
+            "chosenRemF1": 0.4899598393574297
+        },
+        {
+            "id": "759667",
+            "epochs": 475,
+            "remEpochs": 161,
+            "handSetKappa": 0.17922474953062953,
+            "chosenKappa": 0.550367040916756,
+            "chosenRemF1": 0.8280701754385966
+        },
+        {
+            "id": "7749105",
+            "epochs": 123,
+            "remEpochs": 0,
+            "handSetKappa": 0.15606621651056418,
+            "chosenKappa": 0.1436925647451963,
+            "chosenRemF1": 0.0
+        },
+        {
+            "id": "781756",
+            "epochs": 981,
+            "remEpochs": 235,
+            "handSetKappa": 0.24925670722767926,
+            "chosenKappa": 0.06616984053865982,
+            "chosenRemF1": 0.2720588235294118
+        },
+        {
+            "id": "8000685",
+            "epochs": 957,
+            "remEpochs": 257,
+            "handSetKappa": 0.16272129388055698,
+            "chosenKappa": 0.26286027998901995,
+            "chosenRemF1": 0.5541125541125541
+        },
+        {
+            "id": "8173033",
+            "epochs": 955,
+            "remEpochs": 206,
+            "handSetKappa": 0.22429476058040765,
+            "chosenKappa": 0.5202612190221031,
+            "chosenRemF1": 0.6439393939393939
+        },
+        {
+            "id": "8258170",
+            "epochs": 972,
+            "remEpochs": 297,
+            "handSetKappa": 0.05925786837352884,
+            "chosenKappa": 0.33844055287019315,
+            "chosenRemF1": 0.5910931174089069
+        },
+        {
+            "id": "844359",
+            "epochs": 897,
+            "remEpochs": 199,
+            "handSetKappa": 0.2053563420781451,
+            "chosenKappa": 0.21223653395784545,
+            "chosenRemF1": 0.07142857142857142
+        },
+        {
+            "id": "8530312",
+            "epochs": 947,
+            "remEpochs": 263,
+            "handSetKappa": 0.22041822594244934,
+            "chosenKappa": 0.4755174903325982,
+            "chosenRemF1": 0.6753246753246752
+        },
+        {
+            "id": "8686948",
+            "epochs": 955,
+            "remEpochs": 159,
+            "handSetKappa": 0.250213551742331,
+            "chosenKappa": 0.40409633217459967,
+            "chosenRemF1": 0.4641638225255973
+        },
+        {
+            "id": "8692923",
+            "epochs": 936,
+            "remEpochs": 207,
+            "handSetKappa": 0.22854670925832832,
+            "chosenKappa": 0.46297794056408037,
+            "chosenRemF1": 0.511904761904762
+        },
+        {
+            "id": "9106476",
+            "epochs": 961,
+            "remEpochs": 88,
+            "handSetKappa": 0.09559151056825069,
+            "chosenKappa": 0.28769038110065664,
+            "chosenRemF1": 0.27906976744186046
+        },
+        {
+            "id": "9618981",
+            "epochs": 945,
+            "remEpochs": 230,
+            "handSetKappa": 0.37506855455989174,
+            "chosenKappa": 0.5403206460898768,
+            "chosenRemF1": 0.7872340425531915
+        },
+        {
+            "id": "9961348",
+            "epochs": 720,
+            "remEpochs": 194,
+            "handSetKappa": 0.03637344846195358,
+            "chosenKappa": 0.33602582121806374,
+            "chosenRemF1": 0.6285714285714286
+        }
+    ]
+}

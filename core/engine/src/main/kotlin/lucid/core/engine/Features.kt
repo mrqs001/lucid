@@ -58,6 +58,7 @@ class FeatureExtractor(
     private val quietLnRmssd = ArrayList<Float>()
     private val quietLnInstability = ArrayList<Float>()
     private var lastMovementMs: Long? = null
+    private val recentActivity = ArrayDeque<Float>()
 
     private class EpochWindow(val hr: FloatArray, val ibis: List<CleanIbi>)
 
@@ -81,9 +82,10 @@ class FeatureExtractor(
         val rmssd = rmssd(windowIbis)
 
         val motionCoverage = (e.motion.size.toFloat() / expectedSeconds).coerceIn(0f, 1f)
-        val activeSeconds = e.motion.count { it.activityMg > ACTIVE_MG || it.angleChangeDeg > ACTIVE_DEG }
+        val moving = e.motion.map { isMovement(it.activityMg, it.angleChangeDeg) }
+        val activeSeconds = moving.count { it }
         val activity = if (e.motion.isEmpty()) null else e.motion.map { it.activityMg }.average().toFloat()
-        if (activeSeconds >= 2) lastMovementMs = e.motion.last { it.activityMg > ACTIVE_MG || it.angleChangeDeg > ACTIVE_DEG }.t
+        if (activeSeconds >= 2) lastMovementMs = e.motion[moving.lastIndexOf(true)].t
         val minutesSinceMovement = when {
             e.motion.isEmpty() -> null
             lastMovementMs == null -> (e.endMs - e.startMs).toFloat() * (e.index + 1) / 60_000f
@@ -141,10 +143,24 @@ class FeatureExtractor(
         )
     }
 
+    /**
+     * Activity is |acceleration magnitude - 1 g|, so an accelerometer whose gain is off by a few percent
+     * reads tens of mg while perfectly still, and the offset changes with wrist orientation (seen on a
+     * Galaxy Watch7: still plateaus from 4 to 47 mg). Movement is therefore judged against the median of
+     * the preceding [REST_WINDOW_S] seconds, i.e. this wrist position's resting level.
+     */
+    private fun isMovement(activityMg: Float, angleChangeDeg: Float): Boolean {
+        val rest = if (recentActivity.size >= 10) percentile(recentActivity.toList(), 0.5f) else 0f
+        recentActivity.addLast(activityMg)
+        if (recentActivity.size > REST_WINDOW_S) recentActivity.removeFirst()
+        return activityMg - rest > ACTIVE_MG || angleChangeDeg > ACTIVE_DEG
+    }
+
     companion object {
         const val WINDOW_EPOCHS = 5
+        const val REST_WINDOW_S = 60
         const val BASELINE_READY_EPOCHS = 20
-        /** Thresholds for "this second contained a real movement" (initial guesses; calibrate on real data). */
+        /** Thresholds for "this second contained a real movement" (activity above the resting level, or rotation). */
         const val ACTIVE_MG = 40f
         const val ACTIVE_DEG = 3f
 

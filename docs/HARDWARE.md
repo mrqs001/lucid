@@ -73,9 +73,10 @@ Declared in `wear/src/main/AndroidManifest.xml`; granted on first "Start sensors
 
 Recorded watch data has no ground-truth stages, so it cannot prove the estimator right. Options,
 best first: (1) a night with a validated reference (sleep lab PSG, or an EEG headband such as
-Dreem / ZMax) worn at the same time, exported and aligned by timestamp; (2) fit emission
-parameters on a public PSG-labelled wrist dataset (RESEARCH.md §5), then personalise baselines
-from your baseline nights. Until then the estimator stays labelled "uncalibrated" in the UI.
+Dreem / ZMax) worn at the same time, exported and aligned by timestamp; (2) fit on a public
+PSG-labelled wrist dataset. Option 2 is done: the shipped model is fitted on the Walch sleep-accel
+nights ([MODEL.md](MODEL.md)). It came from an Apple Watch, so option 1 is still the only way to
+validate it on this watch.
 
 ## 6. Samsung Remote Test Lab
 

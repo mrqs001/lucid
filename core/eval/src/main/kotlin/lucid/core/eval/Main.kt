@@ -12,11 +12,17 @@ import java.io.File
  *
  *   ./gradlew :core:eval:run --args="--scenario all"
  *   ./gradlew :core:eval:run --args="--scenario normal --seed 42 --baseline --csv /tmp/night.csv"
+ *   ./gradlew :core:eval:run --args="replay night.json out.json [model.json]"   (Replay.kt)
+ *   ./gradlew :core:eval:run --args="walch <prepared_dir> <out_dir>"            (Walch.kt, docs/MODEL.md)
  */
 fun main(args: Array<String>) {
     if (args.firstOrNull() == "replay") {
-        require(args.size == 3) { "usage: replay <input.json> <output.json>" }
-        return runReplay(args[1], args[2])
+        require(args.size in 3..4) { "usage: replay <input.json> <output.json> [model.json]" }
+        return runReplay(args[1], args[2], args.getOrNull(3))
+    }
+    if (args.firstOrNull() == "walch") {
+        require(args.size == 3) { "usage: walch <prepared_dir> <out_dir>" }
+        return runWalch(args[1], args[2])
     }
     val opts = args.toList().windowed(2, 1, partialWindows = true).associate { it[0] to it.getOrNull(1) }
     val which = opts["--scenario"] ?: "all"

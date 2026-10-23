@@ -203,6 +203,13 @@ class TlrCuePolicy(private val c: CueingConfig) : CuePolicy {
 
     private fun trackRem(input: CueInput) {
         val p = input.prediction.pRem
+        if (input.features.quality < FRESH_DATA_MIN_QUALITY) {
+            // No usable heart rate: the estimate is the model carrying its last state forward, not new
+            // evidence. REM has to re-establish itself on fresh data before it counts as sustained.
+            remRunStartMs = null
+            remRunGraceUsed = false
+            return trackRemPeriod(p)
+        }
         if (input.features.activeSeconds >= 2) {
             // Body movements cluster at stage transitions (often the end of a REM period), while the
             // windowed estimate lags by minutes. Restart the sustain timer: REM must re-establish itself.
@@ -265,5 +272,7 @@ class TlrCuePolicy(private val c: CueingConfig) : CuePolicy {
         const val RESPONSE_WINDOW_MS = 60_000L
         const val AROUSAL_HR_JUMP = 8f
         const val REM_PERIOD_END_EPOCHS = 10
+        /** Below this epoch quality there is essentially no fresh heart-rate evidence. */
+        const val FRESH_DATA_MIN_QUALITY = 0.25f
     }
 }

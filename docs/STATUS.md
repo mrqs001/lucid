@@ -84,9 +84,10 @@ Bugs found only on real hardware, all fixed and covered by tests:
 
 ## 4. Cannot be done without specific hardware, data or permissions
 
-- **Validating REM detection.** Needs PSG or a validated EEG headband worn alongside the watch, or
-  fitting on a PSG-labelled wrist dataset (Walch sleep-accel is open; DREAMT and MESA need data
-  use agreements). Until then the UI calls the estimator uncalibrated, and it is.
+- **Validating REM detection on the Galaxy Watch.** Needs PSG or a validated EEG headband worn
+  alongside the watch. The model is now fitted and cross-validated on the open Walch sleep-accel
+  set (Apple Watch, see [MODEL.md](MODEL.md)); DREAMT and MESA would add more nights but need
+  data use agreements.
 - Real PPG quality, IBI artefact rates, Samsung batching behaviour, Galaxy background limits.
 - Whether vibration cues reach dreams. The only wrist-vibration study found none at the wrist and
   frequent awakenings (Paul et al. 2014). This project is an experiment, and the app is built to
@@ -119,14 +120,25 @@ Bugs found only on real hardware, all fixed and covered by tests:
 - Watch settings matter: always-on display and raise-to-wake were on. Bedtime mode turns both off
   and still lets alarm-type vibrations (the cues) through.
 
+## Model fitted on sleep-lab data (2026-10-23)
+
+- The stage model is now fitted on 31 PSG-scored nights with wrist heart rate and motion (Walch et
+  al. 2019) and tested leave-one-subject-out through the real pipeline: kappa 0.22 → 0.40, REM
+  calls right 45 % → 57 %, would-be cues in REM 66 % → 85 %, probabilities calibrated instead of
+  wildly overconfident. Shipped as `hmm-walch-v1`. See [MODEL.md](MODEL.md).
+- Fixed along the way: accelerometer offset counted as movement (the Galaxy Watch7 reads 4-47 mg
+  when still, by wrist position); motion evidence ignored whenever the pulse signal dropped out;
+  REM carried through epochs without heart-rate data counted towards the 5 min sustain rule.
+- `core/eval replay` takes an optional model spec, so any recorded night can be re-scored with
+  any model.
+
 ## Known gaps and next steps
 
-1. When the watch arrives: follow docs/HARDWARE.md, then 3-5 baseline nights before any cueing.
-2. Fit the estimator on Walch sleep-accel (open). Dataset parsing in Rust, fitting in Python, export
-   parameters into `HmmParams`.
+1. Validate the stage model on the Galaxy Watch: a night with an EEG headband or PSG worn at the
+   same time. Samsung Health's own stages would be a weaker comparison.
+2. More lab nights to fit on (MESA, DREAMT; data use agreements needed). With hundreds of nights a
+   small live neural network becomes worth trying.
 3. The watch backlog lives in memory only. If the watch app process dies during an outage, buffered
    data is lost. Persisting it to a file is a small change.
 4. Voice notes for the journal: the column exists, recording and transcription do not.
-5. Daytime reminders send the cue to the phone only. Sending them to the watch outside a session
-   needs a Data Layer message path that doesn't depend on a running night.
-6. Licensed MIT.
+5. Licensed MIT.

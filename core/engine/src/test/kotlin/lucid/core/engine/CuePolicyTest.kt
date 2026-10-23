@@ -76,6 +76,16 @@ class CuePolicyTest {
     }
 
     @Test
+    fun `REM carried through epochs without heart-rate data must re-establish`() {
+        val d = driver(CueingConfig(minSustainedRemMin = 3f))
+        repeat(5) { d.epoch() }
+        repeat(2) { d.epoch(quality = 0f, confidence = 0f) } // the estimate is only the model's memory
+        val after = (0 until 6).map { d.epoch()!! }
+        assertTrue(after.take(5).all { it.failures.any { f -> f.gate == CueGate.REM_NOT_SUSTAINED } })
+        assertEquals(CueAction.DELIVER, after[5].action)
+    }
+
+    @Test
     fun `every failing rule is listed`() {
         val d = driver()
         val dec = d.epoch(hours = 1f, confidence = 0.1f, quality = 0.1f, pWake = 0.05f, still = 0.5f, link = false)!!

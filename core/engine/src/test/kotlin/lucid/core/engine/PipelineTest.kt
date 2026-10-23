@@ -27,6 +27,39 @@ class PipelineTest {
     }
 
     @Test
+    fun `accelerometer offset is not movement, movement on top of it is`() {
+        // A still wrist whose accelerometer reads 45 mg off 1 g (Galaxy Watch7, some wrist positions).
+        val fx = FeatureExtractor(30_000, priorHrBaseline = null)
+        fun epoch(i: Int, mg: (Int) -> Float) = EpochData(i, i * 30_000L, (i + 1) * 30_000L).apply {
+            for (s in 0 until 30) {
+                val t = startMs + s * 1000L
+                hr += HeartRateSample(t, 60f, SampleQuality.GOOD)
+                motion += MotionSample(t, mg(s), 0.1f)
+            }
+        }
+        fx.extract(epoch(0) { 45f }) // the first seconds have no resting level yet
+        assertEquals(0, fx.extract(epoch(1) { 45f + (it % 3) * 0.5f }).activeSeconds)
+        val moved = fx.extract(epoch(2) { if (it in 10..14) 120f else 45f })
+        assertEquals(5, moved.activeSeconds)
+    }
+
+    @Test
+    fun `movement counts as evidence when the pulse signal drops out`() {
+        val still = HmmStageEstimator()
+        val moving = HmmStageEstimator()
+        fun features(active: Int) = EpochFeatures(
+            index = 0, startMs = 0, hrMean = null, hrCoverage = 0f, hrRel = null, hrInstability = null, rmssdMs = null,
+            lnRmssdRel = null, cleanIbiCount = 0, ibiArtifactFraction = 0f, activityMg = 200f, activeSeconds = active,
+            maxAngleChangeDeg = 20f, motionCoverage = 1f, minutesSinceMovement = 0f, contactLost = false,
+            baselineReady = true, quality = 0f, rejectedSamples = 0,
+        )
+        val ctx = NightContext(3f)
+        val pStill = still.update(features(0), ctx).pWake
+        val pMoving = moving.update(features(30), ctx).pWake
+        assertTrue("p(wake) $pMoving should exceed $pStill", pMoving > pStill + 0.05f)
+    }
+
+    @Test
     fun `leftovers from another session or the future cannot poison a night`() {
         // Regression: a watch-side simulation's unacknowledged batch (virtual clock 33 min ahead)
         // was resent into the next, real night and made every real sample look like a duplicate.

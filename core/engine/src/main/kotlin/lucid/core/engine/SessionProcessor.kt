@@ -111,21 +111,34 @@ class SessionProcessor(
 
     fun summary(): SessionSummary = summary.build(sleepOnsetMs)
 
-    private fun process(e: EpochData, out: MutableList<EngineEvent>) {
-        val features = extractor.extract(e)
-        val hours = sleepOnsetMs?.let { (e.startMs - it) / 3_600_000f }
+    /**
+     * Runs already-extracted features through estimation, onset tracking and cueing, as if the epoch
+     * had just been finalised at watch time [nowMs]. Lets an evaluation try many stage models on one
+     * night's features without re-reading the samples; live data goes through [onMessage].
+     */
+    fun onFeatures(features: EpochFeatures, nowMs: Long): List<EngineEvent> {
+        watchNow = maxOf(watchNow, nowMs)
+        val out = ArrayList<EngineEvent>()
+        process(features, features.startMs, features.startMs + config.epochMs, out)
+        return out
+    }
+
+    private fun process(e: EpochData, out: MutableList<EngineEvent>) = process(extractor.extract(e), e.startMs, e.endMs, out)
+
+    private fun process(features: EpochFeatures, startMs: Long, endMs: Long, out: MutableList<EngineEvent>) {
+        val hours = sleepOnsetMs?.let { (startMs - it) / 3_600_000f }
         val prediction = estimator.update(features, NightContext(hours))
         out += EngineEvent.EpochProcessed(features, prediction)
         summary.add(features, prediction)
-        trackSleepOnset(e, prediction, out)
+        trackSleepOnset(startMs, prediction, out)
 
         val result = policy.onEpoch(
             CueInput(
                 features = features,
                 prediction = prediction,
-                hoursSinceOnset = sleepOnsetMs?.let { (e.endMs - it) / 3_600_000f },
-                epochEndMs = e.endMs,
-                nowMs = now().takeIf { it != Long.MIN_VALUE } ?: e.endMs,
+                hoursSinceOnset = sleepOnsetMs?.let { (endMs - it) / 3_600_000f },
+                epochEndMs = endMs,
+                nowMs = now().takeIf { it != Long.MIN_VALUE } ?: endMs,
                 linkConnected = linkConnected(),
             ),
             newCueId,
@@ -155,10 +168,10 @@ class SessionProcessor(
     }
 
     /** Sleep onset = start of the first 10 minutes in which every epoch has p(wake) < 0.5. */
-    private fun trackSleepOnset(e: EpochData, p: StagePrediction, out: MutableList<EngineEvent>) {
+    private fun trackSleepOnset(startMs: Long, p: StagePrediction, out: MutableList<EngineEvent>) {
         if (sleepOnsetMs != null) return
         if (p.pWake < 0.5f && p.mostLikely != SleepStage.WAKE) {
-            if (sleepRun == 0) sleepRunStartMs = e.startMs
+            if (sleepRun == 0) sleepRunStartMs = startMs
             sleepRun++
             if (sleepRun * config.epochMs >= ONSET_RUN_MS) {
                 sleepOnsetMs = sleepRunStartMs
