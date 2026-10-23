@@ -14,3 +14,4 @@ captures/
 wear/libs/*.aar
 wear/libs/*.zip
 /data/
+/output/
