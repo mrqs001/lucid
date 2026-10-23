@@ -9,10 +9,16 @@ rate, inter-beat intervals, motion, sensor status), every 30 s epoch (features, 
 probabilities, per-feature evidence), cue decisions, battery readings, session events, and the
 journal entries linked to the night.
 
---hr-offset adds a constant to every heart-rate value in bpm (raw samples and epoch means).
-Relative features (HR above baseline, HR instability) are unaffected by a constant shift; inter-beat
-intervals are left as recorded. Standard library only. Output is personal health data: keep it
-out of version control (output/ is git-ignored).
+--hr-offset N shifts the night's heart rate by N bpm and keeps everything mathematically
+consistent:
+  * heart-rate samples: bpm + N (no-contact readings stay 0);
+  * beats: the beat sequence is rebuilt so the instantaneous rate 60000/IBI is the original rate + N
+    at every moment (more beats per minute, same rhythm pattern, same contact gaps), with each beat
+    inheriting the quality flag of the original interval it falls in;
+  * everything derived (epochs, RMSSD, stage probabilities, cue decisions, summary) is recomputed by
+    replaying the modified samples through the real pipeline (core/eval `replay`).
+Standard library only (the replay runs through Gradle). Output is personal health data: keep it out
+of version control (output/ is git-ignored).
 """
 import argparse
 import json
@@ -29,6 +35,56 @@ STATUS = ["on_wrist", "off_wrist", "sensor_error", "sensor_unavailable"]
 
 def iso(ms):
     return time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime(ms / 1000)) if ms else None
+
+
+def shift_beats(ibis, delta_bpm, gap_tolerance_ms=60):
+    """Rebuild a beat sequence whose instantaneous rate is the original + delta_bpm.
+
+    ibis: [(t_ms_of_beat, ibi_ms, quality)] sorted by t. Consecutive beats form a run while
+    t[k] - ibi[k] matches t[k-1]; runs are processed separately so contact gaps stay gaps.
+    Within a run, beat phase grows linearly inside each original interval with slope
+    (rate + delta)/60000 per ms; a new beat is placed at every whole phase value.
+    """
+    out = []
+    runs, cur = [], []
+    for b in ibis:
+        if cur and abs((b[0] - b[1]) - cur[-1][0]) > gap_tolerance_ms:
+            runs.append(cur)
+            cur = []
+        cur.append(b)
+    if cur:
+        runs.append(cur)
+    for run in runs:
+        start = run[0][0] - run[0][1]  # the beat before the first interval
+        prev_edge, phase, last_beat = start, 0.0, float(start)
+        for t, ibi, q in run:
+            rate = 60000.0 / ibi + delta_bpm  # beats per minute within this original interval
+            if rate <= 0:
+                prev_edge = t
+                continue
+            ms_per_beat = 60000.0 / rate
+            end_phase = phase + (t - prev_edge) / ms_per_beat
+            n = int(phase) + 1
+            while n <= end_phase + 1e-9:
+                beat = prev_edge + (n - phase) * ms_per_beat
+                interval = round(beat - last_beat)
+                if interval > 0:
+                    out.append((round(beat), interval, q))
+                    last_beat = beat
+                n += 1
+            phase, prev_edge = end_phase, t
+    return out
+
+
+def run_replay(session_start, config, samples):
+    """Recompute epochs, decisions and summary with the project's own pipeline."""
+    import subprocess, tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        src, dst = Path(tmp) / "in.json", Path(tmp) / "out.json"
+        src.write_text(json.dumps({"sessionStartMs": session_start, "config": config, "samples": samples}))
+        cmd = f'source "{ROOT}/scripts/env.sh" && cd "{ROOT}" && ./gradlew -q :core:eval:run --args="replay {src} {dst}"'
+        subprocess.run(["bash", "-c", cmd], check=True, stdout=subprocess.DEVNULL)
+        return json.loads(dst.read_text())
 
 
 def main():
@@ -67,35 +123,69 @@ def main():
         else:
             status.append({"t": r["t"], "status": STATUS[int(r["v1"])] if int(r["v1"]) < len(STATUS) else int(r["v1"])})
 
-    epochs = []
-    for e in q("SELECT * FROM epoch WHERE sessionId=? ORDER BY idx", sid):
-        epochs.append({
-            "index": e["idx"], "t": e["startMs"], "stage_estimate": STAGES[e["stage"]],
-            "p": {"wake": e["pWake"], "light": e["pLight"], "deep": e["pDeep"], "rem": e["pRem"]},
-            "confidence": e["confidence"], "quality": e["quality"], "contact_lost": bool(e["contactLost"]),
-            "hr_mean": shift(e["hrMean"]), "hr_rel": e["hrRel"], "hr_instability": e["hrInstability"],
-            "rmssd_ms": e["rmssd"], "activity_mg": e["activityMg"], "active_seconds": e["activeSeconds"],
-            "evidence": json.loads(e["contributionsJson"] or "[]"),
-        })
+    config = json.loads(s["configJson"] or "{}")
+    if off:
+        backfilled = {x["t"] for x in ibi if x["backfill"]}
+        beats = shift_beats([(x["t"], x["ms"], x["quality"]) for x in ibi], off)
+        ibi = [{"t": t, "ms": ms, "quality": qual, "backfill": t in backfilled} for t, ms, qual in beats]
+        wire_q = {k: k.upper() for k in QUALITY}
+        wire = ([{"type": "hr", "t": h["t"], "bpm": h["bpm"], "quality": wire_q[h["quality"]]} for h in heart_rate] +
+                [{"type": "ibi", "t": b["t"], "ibiMs": b["ms"], "quality": wire_q[b["quality"]]} for b in ibi] +
+                [{"type": "mot", "t": m["t"], "activityMg": m["activity_mg"], "angleChangeDeg": m["angle_change_deg"]} for m in motion] +
+                [{"type": "st", "t": x["t"], "status": str(x["status"]).upper()} for x in status])
+        replayed = run_replay(s["startedAt"], config, wire)
 
-    cues = []
-    for c in q("SELECT * FROM cue_event WHERE sessionId=? ORDER BY t", sid):
-        c["failures"] = json.loads(c.pop("failuresJson") or "[]")
-        c.pop("id"); c.pop("sessionId")
-        cues.append(c)
+    epochs = []
+    if off:
+        for e in replayed["epochs"]:
+            f, p = e["features"], e["prediction"]
+            pr = p["probabilities"]
+            epochs.append({
+                "index": f["index"], "t": f["startMs"], "stage_estimate": STAGES[max(range(4), key=lambda i: pr[i])],
+                "p": dict(zip(STAGES, pr)), "confidence": p["confidence"], "quality": f["quality"],
+                "contact_lost": f["contactLost"], "hr_mean": f["hrMean"], "hr_rel": f["hrRel"],
+                "hr_instability": f["hrInstability"], "rmssd_ms": f["rmssdMs"], "activity_mg": f["activityMg"],
+                "active_seconds": f["activeSeconds"], "evidence": p["contributions"],
+            })
+    else:
+        for e in q("SELECT * FROM epoch WHERE sessionId=? ORDER BY idx", sid):
+            epochs.append({
+                "index": e["idx"], "t": e["startMs"], "stage_estimate": STAGES[e["stage"]],
+                "p": {"wake": e["pWake"], "light": e["pLight"], "deep": e["pDeep"], "rem": e["pRem"]},
+                "confidence": e["confidence"], "quality": e["quality"], "contact_lost": bool(e["contactLost"]),
+                "hr_mean": e["hrMean"], "hr_rel": e["hrRel"], "hr_instability": e["hrInstability"],
+                "rmssd_ms": e["rmssd"], "activity_mg": e["activityMg"], "active_seconds": e["activeSeconds"],
+                "evidence": json.loads(e["contributionsJson"] or "[]"),
+            })
+
+    if off:
+        cues = replayed["decisions"]
+    else:
+        cues = []
+        for c in q("SELECT * FROM cue_event WHERE sessionId=? ORDER BY t", sid):
+            c["failures"] = json.loads(c.pop("failuresJson") or "[]")
+            c.pop("id"); c.pop("sessionId")
+            cues.append(c)
+    summary = replayed["summary"] if off else (json.loads(s["summaryJson"]) if s["summaryJson"] else None)
+    onset = replayed["sleepOnsetMs"] if off else s["sleepOnsetAt"]
 
     night = {
         "format": "lucid-night-v1",
         "exported_at": iso(int(time.time() * 1000)),
-        "modifications": {"hr_offset_bpm": off, "applies_to": ["heart_rate[].bpm", "epochs[].hr_mean"],
-                          "unchanged": "inter-beat intervals, relative features, everything else"} if off else None,
+        "modifications": {
+            "hr_offset_bpm": off,
+            "heart_rate": "every bpm value + offset (no-contact readings stay 0)",
+            "inter_beat_intervals": "beat sequence rebuilt so 60000/IBI equals the original instantaneous rate + offset at every moment",
+            "derived": "epochs, stage probabilities, cue decisions and summary recomputed from the modified samples with the project's pipeline",
+            "unchanged": "motion, sensor status, battery, events, session metadata",
+        } if off else None,
         "session": {
             "id": sid, "start": iso(s["startedAt"]), "end": iso(s["endedAt"]), "start_ms": s["startedAt"], "end_ms": s["endedAt"],
             "status": s["status"], "origin": s["origin"], "device": s["device"], "provider": s["provider"], "link": s["linkKind"],
             "estimator": s["estimatorId"], "policy": s["policyId"], "experiment": s["experimentId"], "arm": s["armLabel"],
-            "sleep_onset": iso(s["sleepOnsetAt"]),
-            "config": json.loads(s["configJson"] or "{}"),
-            "summary": json.loads(s["summaryJson"]) if s["summaryJson"] else None,
+            "sleep_onset": iso(onset),
+            "config": config,
+            "summary": summary,
         },
         "notes": {"times": "t fields are epoch milliseconds (UTC)", "stages": "estimates from an unvalidated model"},
         "heart_rate": heart_rate,

@@ -14,6 +14,10 @@ import java.io.File
  *   ./gradlew :core:eval:run --args="--scenario normal --seed 42 --baseline --csv /tmp/night.csv"
  */
 fun main(args: Array<String>) {
+    if (args.firstOrNull() == "replay") {
+        require(args.size == 3) { "usage: replay <input.json> <output.json>" }
+        return runReplay(args[1], args[2])
+    }
     val opts = args.toList().windowed(2, 1, partialWindows = true).associate { it[0] to it.getOrNull(1) }
     val which = opts["--scenario"] ?: "all"
     val seed = opts["--seed"]?.toLong()
