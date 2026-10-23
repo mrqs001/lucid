@@ -44,7 +44,7 @@ SCHEMA = {
     "time": "All t / *_ms fields are Unix epoch milliseconds (UTC). ISO strings are local time.",
     "heart_rate[]": {
         "source": "Samsung Health Sensor SDK HEART_RATE_CONTINUOUS on the watch, 1 Hz",
-        "bpm": "beats per minute as reported by the watch (0 when quality is no_contact)",
+        "bpm": "beats per minute as reported by the watch; 0 = no reading (always with quality poor or no_contact)",
         "quality": "from the SDK status: 1 -> good; -2, -8, -10 (movement / weak signal) -> poor; -3 (watch off the skin) -> no_contact; 0 and -999 (initialising / other sensor busy) are dropped on the watch",
         "backfill": "true if the sample was buffered on the watch during a disconnection and delivered late",
     },
@@ -166,8 +166,9 @@ def main():
     heart_rate, ibi, motion, status = [], [], [], []
     for r in samples:
         if r["kind"] == 0:
-            # no-contact readings carry bpm 0: no heart rate to shift
-            bpm = r["v1"] if r["quality"] == 3 else shift(r["v1"])
+            # bpm 0 means "no reading" (no skin contact, or movement / weak signal flagged poor):
+            # there is no heart rate to shift, so it stays 0.
+            bpm = shift(r["v1"]) if r["v1"] > 0 else r["v1"]
             heart_rate.append({"t": r["t"], "bpm": bpm, "quality": QUALITY[r["quality"]], "backfill": bool(r["backfill"])})
         elif r["kind"] == 1:
             ibi.append({"t": r["t"], "ms": int(r["v1"]), "quality": QUALITY[r["quality"]], "backfill": bool(r["backfill"])})
@@ -227,8 +228,8 @@ def main():
         "exported_at": iso(int(time.time() * 1000)),
         "modifications": {
             "hr_offset_bpm": off,
-            "heart_rate": "every bpm value + offset (no-contact readings stay 0)",
-            "inter_beat_intervals": "beat sequence rebuilt so 60000/IBI equals the original instantaneous rate + offset at every moment",
+            "heart_rate": "every measured bpm value + offset; readings of 0 (no reading: no contact, or movement / weak signal) stay 0",
+            "inter_beat_intervals": "beat sequence rebuilt so 60000/IBI equals the original instantaneous rate + offset at every moment. Artefact intervals already in the original (missed beats > 1.5 s, extra beats < 0.4 s) follow the same rule and become more extreme; the pipeline's IBI cleaner rejects them, as it did for the originals",
             "derived": "epochs, stage probabilities, cue decisions and summary recomputed from the modified samples with the project's pipeline",
             "unchanged": "motion, sensor status, battery, events, session metadata",
         } if off else None,
