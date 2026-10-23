@@ -25,6 +25,14 @@ class BatteryDrainTest {
     }
 
     @Test
+    fun `summary text renders real battery numbers`() {
+        // Regression: the first real night crashed the app because "80% →" was passed to format().
+        val d = listOf(b(0, 80), b(474, 52)).drain("watch")!!
+        assertEquals("80% → 52% over 7.9 h · 3.5 %/h", d.summary())
+        assertEquals("100% → 0% over 10.0 h · 10.0 %/h", listOf(b(0, 100), b(600, 0)).drain("watch")!!.summary())
+    }
+
+    @Test
     fun `too little data gives no estimate`() {
         assertNull(listOf(b(0, 90)).drain("watch"))
         assertNull(listOf(b(0, 90), b(3, 90)).drain("watch"))

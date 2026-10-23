@@ -178,7 +178,7 @@ fun TonightScreen(nav: Nav) {
                     night.battery.drain("watch")?.let { d ->
                         StatusLabel(
                             if (d.pctPerHour <= 4f) lucid.app.ui.components.Status.GOOD else lucid.app.ui.components.Status.WARNING,
-                            "Watch battery ${d.startPct}% → ${d.endPct}% (%.1f %%/h)".format(d.pctPerHour),
+                            "Watch battery ${d.summary()}",
                         )
                     }
                     StatusLabel(qualityStatus(s.meanQuality), "Sensor data quality ${s.meanQuality?.let { "%.0f%%".format(it * 100) } ?: "–"} (night average)")

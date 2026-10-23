@@ -139,7 +139,7 @@ fun SessionDetailScreen(nav: Nav, sessionId: String) {
                     val readings = night.battery.filter { it.device == key }
                     Text(
                         "$label: " + when {
-                            d != null -> "${d.startPct}% → ${d.endPct}% over %.1f h · %.1f %%/h".format(d.hours, d.pctPerHour)
+                            d != null -> d.summary()
                             readings.isNotEmpty() -> "${readings.last().pct}% (too short to estimate use)"
                             key == "watch" && s.isSimulated && s.linkKind == "IN_APP_SIMULATOR" -> "no battery (simulated watch)"
                             else -> "no readings"

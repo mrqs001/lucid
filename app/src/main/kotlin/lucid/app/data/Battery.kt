@@ -4,6 +4,12 @@ package lucid.app.data
 data class BatteryDrain(val device: String, val startPct: Int, val endPct: Int, val hours: Float) {
     val used: Int get() = startPct - endPct
     val pctPerHour: Float get() = if (hours > 0f) used / hours else 0f
+
+    /**
+     * "80% → 52% over 7.9 h · 3.5 %/h". Only the numbers go through format(): a template that
+     * already contains "80% →" would be read as a format code and throw.
+     */
+    fun summary(): String = "$startPct% → $endPct% over ${"%.1f".format(hours)} h · ${"%.1f".format(pctPerHour)} %/h"
 }
 
 fun List<BatteryEntity>.drain(device: String): BatteryDrain? {
