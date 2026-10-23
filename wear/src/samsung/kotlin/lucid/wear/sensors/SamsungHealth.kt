@@ -1,7 +1,12 @@
 package lucid.wear.sensors
 
 import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.Build
+import android.os.SystemClock
 import android.util.Log
 import com.samsung.android.service.health.tracking.ConnectionListener
 import com.samsung.android.service.health.tracking.HealthTracker
@@ -39,11 +44,11 @@ object SamsungHealth {
 }
 
 /**
- * Galaxy Watch sensors through the Samsung Health Sensor SDK: continuous heart rate (1 Hz) with
- * inter-beat intervals, and the raw 25 Hz accelerometer reduced to 1 s summaries on the watch.
+ * Galaxy Watch sensors: continuous heart rate (1 Hz) with inter-beat intervals from the Samsung
+ * Health Sensor SDK, and the accelerometer (batched in the sensor hub) reduced to 1 s summaries.
  *
  * With the screen off the SDK batches data (about 10 min per delivery); [FLUSH_EVERY_MS] forces
- * delivery so cue decisions on the phone stay timely. Its battery cost has to be measured.
+ * delivery so cue decisions on the phone stay timely.
  */
 class SamsungHealthSensorSource(
     private val context: Context,
@@ -57,7 +62,22 @@ class SamsungHealthSensorSource(
 
     private var service: HealthTrackingService? = null
     private var hrTracker: HealthTracker? = null
-    private var accelTracker: HealthTracker? = null
+
+    /*
+     * Motion comes from Android's accelerometer, batched in the sensor hub, not from the SDK's
+     * ACCELEROMETER_CONTINUOUS: that stream crosses into this process as 25 separate data points
+     * per second and cost most of the app's overnight CPU time on a Galaxy Watch7.
+     */
+    private val sensors = context.getSystemService(SensorManager::class.java)
+    private val accel: Sensor? = sensors.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+    private val accelListener = object : SensorEventListener {
+        override fun onSensorChanged(e: SensorEvent) {
+            val t = System.currentTimeMillis() - (SystemClock.elapsedRealtimeNanos() - e.timestamp) / 1_000_000
+            motion.add(t, e.values[0], e.values[1], e.values[2])?.let { m -> sink?.invoke(listOf(m)) }
+        }
+
+        override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) = Unit
+    }
     private var flushJob: Job? = null
     private var sink: ((List<SensorSample>) -> Unit)? = null
     private val motion = MotionSummarizer()
@@ -76,38 +96,16 @@ class SamsungHealthSensorSource(
         }
     }
 
-    private val accelListener = object : HealthTracker.TrackerEventListener {
-        override fun onDataReceived(points: List<DataPoint>) {
-            val out = ArrayList<SensorSample>()
-            for (p in points) {
-                val x = p.getValue(ValueKey.AccelerometerSet.ACCELEROMETER_X) ?: continue
-                val y = p.getValue(ValueKey.AccelerometerSet.ACCELEROMETER_Y) ?: continue
-                val z = p.getValue(ValueKey.AccelerometerSet.ACCELEROMETER_Z) ?: continue
-                motion.add(p.timestamp, toMs2(x), toMs2(y), toMs2(z))?.let { out += it }
-            }
-            if (out.isNotEmpty()) sink?.invoke(out)
-        }
-
-        override fun onFlushCompleted() = Unit
-
-        override fun onError(error: HealthTracker.TrackerError) {
-            Log.w(TAG, "accelerometer tracker error: $error")
-        }
-    }
-
     private val connection = object : ConnectionListener {
         override fun onConnectionSuccess() {
             val s = service ?: return
             val supported = s.trackingCapability.supportHealthTrackerTypes
             Log.i(TAG, "Health Sensor SDK connected; supported trackers: $supported")
             hrTracker = s.getHealthTracker(HealthTrackerType.HEART_RATE_CONTINUOUS).also { it.setEventListener(hrListener) }
-            if (HealthTrackerType.ACCELEROMETER_CONTINUOUS in supported) {
-                accelTracker = s.getHealthTracker(HealthTrackerType.ACCELEROMETER_CONTINUOUS).also { it.setEventListener(accelListener) }
-            }
             flushJob = scope.launch {
                 while (isActive) {
                     delay(FLUSH_EVERY_MS)
-                    runCatching { hrTracker?.flush(); accelTracker?.flush() }
+                    runCatching { hrTracker?.flush() }
                 }
             }
         }
@@ -124,13 +122,15 @@ class SamsungHealthSensorSource(
 
     override fun start(onSamples: (List<SensorSample>) -> Unit, onLinkSimulation: (Boolean) -> Unit) {
         sink = onSamples
+        // 25 Hz, delivered in hub batches of up to 25 s.
+        accel?.let { sensors.registerListener(accelListener, it, 40_000, 25_000_000) }
         service = HealthTrackingService(connection, context).also { it.connectService() }
     }
 
     override fun stop() {
         flushJob?.cancel()
         runCatching { hrTracker?.unsetEventListener() }
-        runCatching { accelTracker?.unsetEventListener() }
+        runCatching { sensors.unregisterListener(accelListener) }
         runCatching { service?.disconnectService() }
         motion.close()?.let { m -> sink?.invoke(listOf(m)) }
         sink = null
@@ -180,6 +180,6 @@ class SamsungHealthSensorSource(
 
     private companion object {
         const val TAG = "SamsungHealth"
-        const val FLUSH_EVERY_MS = 60_000L
+        const val FLUSH_EVERY_MS = 30_000L
     }
 }

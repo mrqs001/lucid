@@ -66,6 +66,9 @@ data class CueingConfig(
     val patternRepeats: Int = 1,
     /** Watch must drop commands older than this (e.g. after a reconnect). */
     val commandTtlSec: Int = 20,
-    /** Epochs whose data is older than this (relative to now) are never cued on. */
-    val staleAfterSec: Int = 90,
+    /**
+     * Epochs whose data is older than this (relative to now) are never cued on. The watch sends
+     * every 30 s and heart rate arrives in 30 s flushes, so data is normally 30-70 s old.
+     */
+    val staleAfterSec: Int = 120,
 )

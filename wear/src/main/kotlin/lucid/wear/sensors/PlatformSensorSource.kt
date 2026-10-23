@@ -59,7 +59,7 @@ class PlatformSensorSource(context: Context) : SensorSource {
         sink = onSamples
         // Batch in the sensor hub for up to 10 s to let the CPU sleep between deliveries.
         hr?.let { sm.registerListener(listener, it, SensorManager.SENSOR_DELAY_NORMAL, 10_000_000) }
-        accel?.let { sm.registerListener(listener, it, 40_000, 10_000_000) }
+        accel?.let { sm.registerListener(listener, it, 40_000, 25_000_000) }
     }
 
     override fun stop() {

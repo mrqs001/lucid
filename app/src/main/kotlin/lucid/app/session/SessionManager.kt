@@ -93,6 +93,9 @@ class SessionManager(
         val persist: Persister,
     ) {
         lateinit var job: Job
+        /** Start command for the watch; re-sent whenever the watch app restarts mid-night. */
+        @Volatile var startMessage: StartMonitoring? = null
+        @Volatile var watchSimulates = false
         @Volatile var lastHeardMs = System.currentTimeMillis()
         val lastBattery = HashMap<String, Pair<Long, Int>>()
         @Volatile var lastStatusKey: String? = null
@@ -193,6 +196,16 @@ class SessionManager(
                 }
                 inApp?.let { l -> launch { l.runner.state.collect { st -> _live.update { it.copy(sim = st) } } } }
                 if (inApp == null) launch { keepWatchStarted(r, s, scenario.id, seed, startMs) }
+                if (inApp == null) launch {
+                    // Watchdog: a crashed or killed watch app sends nothing at all. After 2 minutes of
+                    // silence, re-send the start command; it relaunches the watch app in the background.
+                    while (true) {
+                        delay(60_000)
+                        if (r.watchConfirmed && !r.stopping && System.currentTimeMillis() - r.lastHeardMs > SILENCE_LIMIT_MS) {
+                            resumeWatch(r, "no data from the watch for ${(System.currentTimeMillis() - r.lastHeardMs) / 1000} s")
+                        }
+                    }
+                }
                 launch { while (true) { delay(2_000); r.persist.flush() } }
                 launch {
                     while (true) {
@@ -226,6 +239,7 @@ class SessionManager(
 
     /** Ask the watch to start (and keep asking until it confirms) whenever the link is up. */
     private suspend fun keepWatchStarted(r: Running, s: AppSettings, scenarioId: String, seed: Long, startMs: Long) {
+        r.watchSimulates = s.simulation.watchSimulates
         val start = StartMonitoring(
             sessionId = r.sessionId,
             sensorMode = if (s.simulation.watchSimulates) SensorMode.SIMULATED else SensorMode.REAL,
@@ -234,10 +248,17 @@ class SessionManager(
             speed = if (s.simulation.watchSimulates) s.simulation.speed else 1f,
             startAtMs = startMs,
         )
+        r.startMessage = start
         while (!r.watchConfirmed && !r.stopping) {
             if (r.link.isConnected) r.link.send(start.copy(sentWallMs = System.currentTimeMillis()))
             delay(5_000)
         }
+    }
+
+    private suspend fun resumeWatch(r: Running, reason: String) {
+        val start = r.startMessage ?: return
+        r.persist.event(System.currentTimeMillis(), "resume", reason)
+        r.link.send(start.copy(sentWallMs = System.currentTimeMillis()))
     }
 
     fun stop() {
@@ -301,6 +322,8 @@ class SessionManager(
         for (e in events) when (e) {
             is EngineEvent.SourceIdentified -> {
                 val src = e.hello.source
+                // A hello mid-night means the watch app (re)started: tell it to pick the night back up.
+                if (r.watchConfirmed && !r.stopping) resumeWatch(r, "watch app restarted")
                 db.sessions().get(r.sessionId)?.let {
                     db.sessions().update(it.copy(origin = src.origin, device = src.device, provider = src.provider))
                 }
@@ -311,16 +334,24 @@ class SessionManager(
             is EngineEvent.StatusReceived -> {
                 e.status.batteryPct?.let { recordBattery(r, "watch", it, e.status.charging) }
                 val s = e.status
-                val key = "monitoring=${s.monitoring} session=${s.sessionId == r.sessionId} buffered=${if (s.bufferedSamples > 100) "high" else "low"}"
+                // Only log changes that matter: monitoring state, and a real backlog (minutes of data,
+                // not the normal in-flight batch).
+                val key = "monitoring=${s.monitoring} session=${s.sessionId == r.sessionId} backlog=${s.bufferedSamples > 2_000}"
                 if (key != r.lastStatusKey) {
                     r.lastStatusKey = key
                     r.persist.event(System.currentTimeMillis(), "watch_status", "monitoring=${s.monitoring}, this night=${s.sessionId == r.sessionId}, buffered=${s.bufferedSamples}, battery=${s.batteryPct}")
                 }
                 if (e.status.monitoring && e.status.sessionId == r.sessionId) r.watchConfirmed = true
                 if (!e.status.monitoring && r.watchConfirmed && r.sim == null && !r.stopping) {
-                    // The watch ended monitoring (simulated night over, or stopped on the watch).
-                    liveEvents += LiveEvent(now ?: 0, LiveEvent.Kind.INFO, "Watch stopped monitoring: ending the night")
-                    stop()
+                    if (r.watchSimulates) {
+                        // A watch-side simulation ran to the end of its script.
+                        liveEvents += LiveEvent(now ?: 0, LiveEvent.Kind.INFO, "Simulated night finished on the watch: ending the night")
+                        stop()
+                    } else {
+                        // Real sensors never stop on their own: the watch app restarted or lost the night.
+                        resumeWatch(r, "watch not monitoring")
+                        liveEvents += LiveEvent(now ?: 0, LiveEvent.Kind.WARNING, "Watch had stopped recording: asked it to resume")
+                    }
                 }
                 _live.update { it.copy(battery = e.status.batteryPct, bufferedOnWatch = e.status.bufferedSamples) }
             }
@@ -506,7 +537,7 @@ class SessionManager(
         private const val HISTORY_EPOCHS = 240
         private const val HR_HISTORY = 360
         private const val MAX_EVENTS = 60
-        private const val SILENCE_LIMIT_MS = 45_000L
+        private const val SILENCE_LIMIT_MS = 120_000L
         private const val BATTERY_EVERY_MS = 10 * 60_000L
         val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
         val failuresSerializer = ListSerializer(GateFailure.serializer())

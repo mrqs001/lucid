@@ -196,7 +196,10 @@ class WatchController(private val app: Context) {
                 _ui.update { it.copy(simulatedLinkDown = !up) }
             },
         )
-        val flushEvery = if (src.info.isSimulated) 100L else 5_000L
+        // Real sensors: send every 30 s and report status every 5 min. Measured overnight on a Galaxy
+        // Watch7, sending every 5 s with status every 15 s kept Bluetooth and the CPU busy all night.
+        val flushEvery = if (src.info.isSimulated) 100L else 30_000L
+        val statusEvery = if (src.info.isSimulated) 15_000L else 300_000L
         pump = scope.launch {
             link.send(hello())
             var lastStatus = 0L
@@ -218,7 +221,7 @@ class WatchController(private val app: Context) {
                     break
                 }
                 _ui.update { it.copy(buffered = uplink.buffered) }
-                if (System.currentTimeMillis() - lastStatus > 15_000 && !simulatedLinkDown) {
+                if (System.currentTimeMillis() - lastStatus > statusEvery && !simulatedLinkDown) {
                     sendStatus()
                     lastStatus = System.currentTimeMillis()
                 }

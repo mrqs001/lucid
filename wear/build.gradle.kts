@@ -17,6 +17,17 @@ android {
         versionName = "0.1.0"
     }
 
+    buildTypes {
+        release {
+            // Overnight use runs this build: a debug build runs largely interpreted with JNI checks,
+            // which a profile on a Galaxy Watch7 showed as ~70% of the app's CPU time.
+            isMinifyEnabled = false
+            // Same key as the phone app (debug key on a dev machine): the Wear Data Layer only
+            // connects apps with the same package name and signature.
+            signingConfig = signingConfigs.getByName("debug")
+        }
+    }
+
     buildFeatures {
         compose = true
         buildConfig = true

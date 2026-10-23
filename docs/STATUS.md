@@ -103,6 +103,22 @@ Bugs found only on real hardware, all fixed and covered by tests:
   watch (Data Layer, nearby only, no night needed); the phone notification is not mirrored to the
   watch, and the phone vibrates only when no watch is in reach.
 
+## First real night and battery work (2026-10-23)
+
+- First baseline night on the Galaxy Watch7: 5.3 h recorded without gaps (heart rate 1 Hz, beat
+  intervals, motion), link up all night, no backfill. Stage estimates plausible in timing (REM-like
+  blocks ~80-100 min after onset and later), but light vs deep barely separate. Not validated.
+- Crash fixed: the report screens threw as soon as a night had a watch battery drain to show.
+- Watch battery: 7.9 %/h overall, of which the app was ~3.8 %/h (batterystats). A simpleperf profile
+  showed ~70% of the app's CPU in the interpreter and JNI checks of the debug build, and the
+  SDK's 25 Hz accelerometer stream as the main app-code cost. Now: release build on the watch
+  (same signing key), accelerometer from the sensor hub in batches, data every 30 s, status every
+  5 min. Measured CPU: 5.2 → 1.25 CPU-s per minute.
+- The phone resumes the watch after a watch-app restart (hello mid-night) and, via a 2-minute
+  silence watchdog, after a crash. Verified with `am crash` on the watch: back recording in ~3 min.
+- Watch settings matter: always-on display and raise-to-wake were on. Bedtime mode turns both off
+  and still lets alarm-type vibrations (the cues) through.
+
 ## Known gaps and next steps
 
 1. When the watch arrives: follow docs/HARDWARE.md, then 3-5 baseline nights before any cueing.
