@@ -9,6 +9,7 @@ import lucid.app.data.LucidDatabase
 import lucid.app.data.SessionStatus
 import lucid.app.data.SettingsRepository
 import lucid.app.link.WatchMessenger
+import lucid.app.session.Reanalysis
 import lucid.app.session.SessionManager
 import lucid.app.training.TrainingCoordinator
 
@@ -42,6 +43,7 @@ class LucidApp : Application() {
                 container.db.sessions().update(s.copy(status = SessionStatus.ABORTED, endedAt = s.endedAt ?: System.currentTimeMillis()))
             }
             container.training.rescheduleReminders()
+            Reanalysis(container.db).run()
         }
     }
 }

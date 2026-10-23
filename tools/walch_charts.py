@@ -28,6 +28,7 @@ AXIS = "#c3c2b7"
 NEW = "#2a78d6"  # fitted model
 OLD = MUTED  # hand-set model
 STAGES = ["wake", "light", "deep", "rem"]
+EARLIEST_CUE_H = 3.5  # CueingConfig.minMinutesAfterSleepOnset
 LABELS = {"wake": "Wake", "light": "Light (N1+N2)", "deep": "Deep (N3)", "rem": "REM"}
 
 plt.rcParams.update({
@@ -133,8 +134,8 @@ def cue_by_hour(d, report, out):
     for _, r in hours.iterrows():
         ax.annotate(f"{int(r.cues)}", (r.hoursSinceOnset + 0.5, r.inRem), xytext=(0, 8), textcoords="offset points",
                     ha="center", color=MUTED, fontsize=8)
-    ax.axvline(5, color=AXIS, linewidth=1)
-    ax.text(5.05, 0.04, "current gate: 5 h", color=MUTED, fontsize=9)
+    ax.axvline(EARLIEST_CUE_H, color=AXIS, linewidth=1)
+    ax.text(EARLIEST_CUE_H + 0.05, 0.04, f"earliest cue: {EARLIEST_CUE_H} h", color=MUTED, fontsize=9)
     ax.set_ylim(0, 1.05)
     ax.set_xlim(0, 8)
     ax.set_xlabel("hours since sleep onset")

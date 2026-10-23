@@ -102,7 +102,7 @@ as reported by the sources; items marked *unverified* could not be confirmed fro
 
 ## 6. Implications already built in
 
-- Cue only late (≥ 5 h after onset), in **sustained** probable REM (5 min, reset by movement),
+- Cue only after the first sleep cycles (≥ 3.5 h after onset, see MODEL.md), in **sustained** probable REM (3 min, reset by movement; tuned on lab nights, see MODEL.md),
   never right after movement, spaced ≥ 60 s, ≤ 6 per REM period, start just above perception
   and back off on any sign of arousal.
 - Train the cue before sleep the way Konkoly et al. did; support WBTB + MILD as the

@@ -81,6 +81,6 @@ minutes at 240x. Details, including running phone and watch emulators together, 
 
 - Not a medical device. Stage estimates are probabilistic and not validated on the Galaxy Watch.
 - Simulated data is labelled as such everywhere and excluded from statistics by default.
-- Vibration can wake you. Defaults are conservative (no cues in the first 5 h, sustained REM
+- Vibration can wake you. Defaults are conservative (no cues in the first 3.5 h, sustained REM
   required, movement lockouts, caps, intensity backs off after any sign of arousal).
 - No network permission in release builds; all data stays on the phone unless you export it.

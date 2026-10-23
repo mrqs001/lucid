@@ -49,56 +49,56 @@
             "sustainedRemEpochs": 2806,
             "sustainedRemPrecision": 0.5531004989308624,
             "sustainedRemCoverage": 0.2739145781856689,
-            "wouldCue": 146,
-            "wouldCueInRem": 0.6643835616438356,
+            "wouldCue": 330,
+            "wouldCueInRem": 0.6515151515151515,
             "wouldCueByStage": {
-                "wake": 0,
-                "light": 49,
+                "wake": 2,
+                "light": 113,
                 "deep": 0,
-                "rem": 97
+                "rem": 215
             },
-            "wouldCueAllNight": 362,
-            "wouldCueAllNightInRem": 0.5580110497237569,
+            "wouldCueAllNight": 505,
+            "wouldCueAllNightInRem": 0.47128712871287126,
             "wouldCueAllNightByHour": [
                 {
                     "hoursSinceOnset": 0,
-                    "cues": 5,
+                    "cues": 9,
                     "inRem": 0.0
                 },
                 {
                     "hoursSinceOnset": 1,
-                    "cues": 64,
-                    "inRem": 0.28125
+                    "cues": 111,
+                    "inRem": 0.2072072072072072
                 },
                 {
                     "hoursSinceOnset": 2,
-                    "cues": 76,
-                    "inRem": 0.4342105263157895
+                    "cues": 144,
+                    "inRem": 0.4027777777777778
                 },
                 {
                     "hoursSinceOnset": 3,
-                    "cues": 55,
-                    "inRem": 0.7454545454545455
+                    "cues": 81,
+                    "inRem": 0.6666666666666666
                 },
                 {
                     "hoursSinceOnset": 4,
-                    "cues": 47,
-                    "inRem": 0.723404255319149
+                    "cues": 67,
+                    "inRem": 0.6119402985074627
                 },
                 {
                     "hoursSinceOnset": 5,
                     "cues": 40,
-                    "inRem": 0.6
+                    "inRem": 0.625
                 },
                 {
                     "hoursSinceOnset": 6,
-                    "cues": 41,
-                    "inRem": 0.6829268292682927
+                    "cues": 31,
+                    "inRem": 0.6451612903225806
                 },
                 {
                     "hoursSinceOnset": 7,
-                    "cues": 34,
-                    "inRem": 0.7058823529411765
+                    "cues": 22,
+                    "inRem": 0.7727272727272727
                 }
             ]
         },
@@ -148,56 +148,56 @@
             "sustainedRemEpochs": 3105,
             "sustainedRemPrecision": 0.6518518518518519,
             "sustainedRemCoverage": 0.35721849629368163,
-            "wouldCue": 137,
-            "wouldCueInRem": 0.7883211678832117,
+            "wouldCue": 239,
+            "wouldCueInRem": 0.8284518828451883,
             "wouldCueByStage": {
-                "wake": 4,
-                "light": 25,
+                "wake": 7,
+                "light": 34,
                 "deep": 0,
-                "rem": 108
+                "rem": 198
             },
-            "wouldCueAllNight": 341,
-            "wouldCueAllNightInRem": 0.7038123167155426,
+            "wouldCueAllNight": 412,
+            "wouldCueAllNightInRem": 0.7233009708737864,
             "wouldCueAllNightByHour": [
                 {
                     "hoursSinceOnset": 0,
-                    "cues": 19,
-                    "inRem": 0.5789473684210527
+                    "cues": 27,
+                    "inRem": 0.5185185185185185
                 },
                 {
                     "hoursSinceOnset": 1,
-                    "cues": 77,
-                    "inRem": 0.5844155844155844
+                    "cues": 90,
+                    "inRem": 0.5333333333333333
                 },
                 {
                     "hoursSinceOnset": 2,
-                    "cues": 92,
-                    "inRem": 0.7065217391304348
+                    "cues": 118,
+                    "inRem": 0.652542372881356
                 },
                 {
                     "hoursSinceOnset": 3,
-                    "cues": 29,
-                    "inRem": 0.9310344827586207
+                    "cues": 42,
+                    "inRem": 0.8809523809523809
                 },
                 {
                     "hoursSinceOnset": 4,
-                    "cues": 35,
-                    "inRem": 0.7428571428571429
+                    "cues": 32,
+                    "inRem": 0.96875
                 },
                 {
                     "hoursSinceOnset": 5,
-                    "cues": 41,
-                    "inRem": 0.8048780487804879
+                    "cues": 47,
+                    "inRem": 0.8936170212765957
                 },
                 {
                     "hoursSinceOnset": 6,
                     "cues": 35,
-                    "inRem": 0.7714285714285715
+                    "inRem": 0.9142857142857143
                 },
                 {
                     "hoursSinceOnset": 7,
-                    "cues": 13,
-                    "inRem": 0.46153846153846156
+                    "cues": 21,
+                    "inRem": 0.8095238095238095
                 }
             ]
         },
@@ -247,56 +247,56 @@
             "sustainedRemEpochs": 3530,
             "sustainedRemPrecision": 0.6368271954674221,
             "sustainedRemCoverage": 0.3967525591246029,
-            "wouldCue": 150,
-            "wouldCueInRem": 0.82,
+            "wouldCue": 269,
+            "wouldCueInRem": 0.8364312267657993,
             "wouldCueByStage": {
-                "wake": 2,
-                "light": 25,
+                "wake": 4,
+                "light": 40,
                 "deep": 0,
-                "rem": 123
+                "rem": 225
             },
-            "wouldCueAllNight": 355,
-            "wouldCueAllNightInRem": 0.704225352112676,
+            "wouldCueAllNight": 421,
+            "wouldCueAllNightInRem": 0.6935866983372921,
             "wouldCueAllNightByHour": [
                 {
                     "hoursSinceOnset": 0,
-                    "cues": 7,
-                    "inRem": 0.0
+                    "cues": 12,
+                    "inRem": 0.08333333333333333
                 },
                 {
                     "hoursSinceOnset": 1,
-                    "cues": 78,
-                    "inRem": 0.5897435897435898
+                    "cues": 98,
+                    "inRem": 0.5102040816326531
                 },
                 {
                     "hoursSinceOnset": 2,
-                    "cues": 81,
-                    "inRem": 0.7037037037037037
+                    "cues": 105,
+                    "inRem": 0.6
                 },
                 {
                     "hoursSinceOnset": 3,
-                    "cues": 56,
-                    "inRem": 0.7678571428571429
+                    "cues": 66,
+                    "inRem": 0.7878787878787878
                 },
                 {
                     "hoursSinceOnset": 4,
-                    "cues": 34,
-                    "inRem": 0.6764705882352942
+                    "cues": 31,
+                    "inRem": 0.7741935483870968
                 },
                 {
                     "hoursSinceOnset": 5,
-                    "cues": 35,
-                    "inRem": 1.0
+                    "cues": 42,
+                    "inRem": 0.9523809523809523
                 },
                 {
                     "hoursSinceOnset": 6,
-                    "cues": 42,
-                    "inRem": 0.8333333333333334
+                    "cues": 43,
+                    "inRem": 0.9069767441860465
                 },
                 {
                     "hoursSinceOnset": 7,
-                    "cues": 22,
-                    "inRem": 0.5
+                    "cues": 24,
+                    "inRem": 0.9583333333333334
                 }
             ]
         },
@@ -346,55 +346,55 @@
             "sustainedRemEpochs": 4328,
             "sustainedRemPrecision": 0.5880314232902033,
             "sustainedRemCoverage": 0.4491704906459584,
-            "wouldCue": 157,
-            "wouldCueInRem": 0.7452229299363057,
+            "wouldCue": 301,
+            "wouldCueInRem": 0.7308970099667774,
             "wouldCueByStage": {
-                "wake": 1,
-                "light": 39,
+                "wake": 3,
+                "light": 78,
                 "deep": 0,
-                "rem": 117
+                "rem": 220
             },
-            "wouldCueAllNight": 430,
-            "wouldCueAllNightInRem": 0.6627906976744186,
+            "wouldCueAllNight": 525,
+            "wouldCueAllNightInRem": 0.5542857142857143,
             "wouldCueAllNightByHour": [
                 {
                     "hoursSinceOnset": 0,
-                    "cues": 26,
-                    "inRem": 0.46153846153846156
+                    "cues": 45,
+                    "inRem": 0.26666666666666666
                 },
                 {
                     "hoursSinceOnset": 1,
-                    "cues": 107,
-                    "inRem": 0.5514018691588785
+                    "cues": 138,
+                    "inRem": 0.45652173913043476
                 },
                 {
                     "hoursSinceOnset": 2,
-                    "cues": 120,
-                    "inRem": 0.5666666666666667
+                    "cues": 149,
+                    "inRem": 0.4899328859060403
                 },
                 {
                     "hoursSinceOnset": 3,
-                    "cues": 52,
-                    "inRem": 0.8269230769230769
+                    "cues": 75,
+                    "inRem": 0.6933333333333334
                 },
                 {
                     "hoursSinceOnset": 4,
-                    "cues": 36,
-                    "inRem": 0.8333333333333334
+                    "cues": 42,
+                    "inRem": 0.6904761904761905
                 },
                 {
                     "hoursSinceOnset": 5,
-                    "cues": 42,
-                    "inRem": 0.7857142857142857
+                    "cues": 33,
+                    "inRem": 0.8787878787878788
                 },
                 {
                     "hoursSinceOnset": 6,
-                    "cues": 31,
-                    "inRem": 0.7741935483870968
+                    "cues": 32,
+                    "inRem": 0.6875
                 },
                 {
                     "hoursSinceOnset": 7,
-                    "cues": 16,
+                    "cues": 11,
                     "inRem": 1.0
                 }
             ]
@@ -445,56 +445,56 @@
             "sustainedRemEpochs": 2035,
             "sustainedRemPrecision": 0.6113022113022113,
             "sustainedRemCoverage": 0.21955524179315214,
-            "wouldCue": 80,
-            "wouldCueInRem": 0.7875,
+            "wouldCue": 136,
+            "wouldCueInRem": 0.7941176470588235,
             "wouldCueByStage": {
-                "wake": 2,
-                "light": 15,
+                "wake": 4,
+                "light": 24,
                 "deep": 0,
-                "rem": 63
+                "rem": 108
             },
-            "wouldCueAllNight": 227,
-            "wouldCueAllNightInRem": 0.6828193832599119,
+            "wouldCueAllNight": 259,
+            "wouldCueAllNightInRem": 0.7297297297297297,
             "wouldCueAllNightByHour": [
                 {
                     "hoursSinceOnset": 0,
-                    "cues": 12,
-                    "inRem": 0.5833333333333334
+                    "cues": 18,
+                    "inRem": 0.4444444444444444
                 },
                 {
                     "hoursSinceOnset": 1,
+                    "cues": 62,
+                    "inRem": 0.6935483870967742
+                },
+                {
+                    "hoursSinceOnset": 2,
                     "cues": 61,
                     "inRem": 0.639344262295082
                 },
                 {
-                    "hoursSinceOnset": 2,
-                    "cues": 55,
-                    "inRem": 0.6
-                },
-                {
                     "hoursSinceOnset": 3,
-                    "cues": 18,
-                    "inRem": 0.9444444444444444
+                    "cues": 24,
+                    "inRem": 1.0
                 },
                 {
                     "hoursSinceOnset": 4,
-                    "cues": 22,
-                    "inRem": 0.5454545454545454
+                    "cues": 23,
+                    "inRem": 0.782608695652174
                 },
                 {
                     "hoursSinceOnset": 5,
-                    "cues": 26,
-                    "inRem": 0.8846153846153846
+                    "cues": 37,
+                    "inRem": 0.918918918918919
                 },
                 {
                     "hoursSinceOnset": 6,
                     "cues": 23,
-                    "inRem": 0.8695652173913043
+                    "inRem": 0.782608695652174
                 },
                 {
                     "hoursSinceOnset": 7,
-                    "cues": 10,
-                    "inRem": 0.4
+                    "cues": 11,
+                    "inRem": 0.45454545454545453
                 }
             ]
         },
@@ -544,56 +544,56 @@
             "sustainedRemEpochs": 2917,
             "sustainedRemPrecision": 0.6606102159753171,
             "sustainedRemCoverage": 0.3400988351570773,
-            "wouldCue": 116,
-            "wouldCueInRem": 0.853448275862069,
+            "wouldCue": 192,
+            "wouldCueInRem": 0.8541666666666666,
             "wouldCueByStage": {
-                "wake": 4,
-                "light": 13,
+                "wake": 9,
+                "light": 19,
                 "deep": 0,
-                "rem": 99
+                "rem": 164
             },
-            "wouldCueAllNight": 329,
-            "wouldCueAllNightInRem": 0.7477203647416414,
+            "wouldCueAllNight": 366,
+            "wouldCueAllNightInRem": 0.7595628415300546,
             "wouldCueAllNightByHour": [
                 {
                     "hoursSinceOnset": 0,
-                    "cues": 14,
-                    "inRem": 0.42857142857142855
+                    "cues": 25,
+                    "inRem": 0.44
                 },
                 {
                     "hoursSinceOnset": 1,
-                    "cues": 72,
-                    "inRem": 0.6527777777777778
+                    "cues": 85,
+                    "inRem": 0.6823529411764706
                 },
                 {
                     "hoursSinceOnset": 2,
-                    "cues": 77,
-                    "inRem": 0.7272727272727273
+                    "cues": 85,
+                    "inRem": 0.6823529411764706
                 },
                 {
                     "hoursSinceOnset": 3,
-                    "cues": 46,
-                    "inRem": 0.717391304347826
+                    "cues": 53,
+                    "inRem": 0.8113207547169812
                 },
                 {
                     "hoursSinceOnset": 4,
                     "cues": 31,
-                    "inRem": 0.9032258064516129
+                    "inRem": 0.8709677419354839
                 },
                 {
                     "hoursSinceOnset": 5,
-                    "cues": 42,
-                    "inRem": 0.9285714285714286
+                    "cues": 44,
+                    "inRem": 0.9772727272727273
                 },
                 {
                     "hoursSinceOnset": 6,
-                    "cues": 30,
-                    "inRem": 0.8333333333333334
+                    "cues": 27,
+                    "inRem": 0.8518518518518519
                 },
                 {
                     "hoursSinceOnset": 7,
-                    "cues": 17,
-                    "inRem": 0.7058823529411765
+                    "cues": 16,
+                    "inRem": 0.9375
                 }
             ]
         }
@@ -856,5 +856,342 @@
             "chosenKappa": 0.33602582121806374,
             "chosenRemF1": 0.6285714285714286
         }
-    ]
+    ],
+    "cueRules": {
+        "selection": "most late REM periods reached with no more wrong cues per night than the current rules",
+        "current": {
+            "rules": {
+                "remThreshold": 0.7,
+                "minSustainedRemMin": 3.0,
+                "minConfidence": 0.45,
+                "maxWakeProbability": 0.2,
+                "motionLockoutMin": 4.0
+            },
+            "nights": 31,
+            "cues": 192,
+            "byStage": [
+                9,
+                19,
+                0,
+                164
+            ],
+            "precision": 0.8541666666666666,
+            "wrongPerNight": 0.9032258064516129,
+            "periodsReached": 33,
+            "periods": 71,
+            "coverage": 0.4647887323943662
+        },
+        "chosenOnAllNights": {
+            "rules": {
+                "remThreshold": 0.7,
+                "minSustainedRemMin": 3.0,
+                "minConfidence": 0.3,
+                "maxWakeProbability": 0.1,
+                "motionLockoutMin": 4.0
+            },
+            "nights": 31,
+            "cues": 192,
+            "byStage": [
+                9,
+                19,
+                0,
+                164
+            ],
+            "precision": 0.8541666666666666,
+            "wrongPerNight": 0.9032258064516129,
+            "periodsReached": 33,
+            "periods": 71,
+            "coverage": 0.4647887323943662
+        },
+        "heldOutTuned": {
+            "rules": {
+                "remThreshold": 0.7,
+                "minSustainedRemMin": 3.0,
+                "minConfidence": 0.3,
+                "maxWakeProbability": 0.1,
+                "motionLockoutMin": 4.0
+            },
+            "nights": 31,
+            "cues": 192,
+            "byStage": [
+                9,
+                19,
+                0,
+                164
+            ],
+            "precision": 0.8541666666666666,
+            "wrongPerNight": 0.9032258064516129,
+            "periodsReached": 33,
+            "periods": 71,
+            "coverage": 0.4647887323943662
+        },
+        "heldOutRuleSets": 1,
+        "chosenWithTolerance": {
+            "rules": {
+                "remThreshold": 0.7,
+                "minSustainedRemMin": 3.0,
+                "minConfidence": 0.3,
+                "maxWakeProbability": 0.1,
+                "motionLockoutMin": 4.0
+            },
+            "nights": 31,
+            "cues": 192,
+            "byStage": [
+                9,
+                19,
+                0,
+                164
+            ],
+            "precision": 0.8541666666666666,
+            "wrongPerNight": 0.9032258064516129,
+            "periodsReached": 33,
+            "periods": 71,
+            "coverage": 0.4647887323943662
+        },
+        "heldOutWithTolerance": {
+            "rules": {
+                "remThreshold": 0.7,
+                "minSustainedRemMin": 3.0,
+                "minConfidence": 0.3,
+                "maxWakeProbability": 0.1,
+                "motionLockoutMin": 4.0
+            },
+            "nights": 31,
+            "cues": 200,
+            "byStage": [
+                9,
+                25,
+                0,
+                166
+            ],
+            "precision": 0.83,
+            "wrongPerNight": 1.096774193548387,
+            "periodsReached": 33,
+            "periods": 71,
+            "coverage": 0.4647887323943662
+        },
+        "heldOutWithToleranceRuleSets": 2,
+        "top": [
+            {
+                "rules": {
+                    "remThreshold": 0.7,
+                    "minSustainedRemMin": 3.0,
+                    "minConfidence": 0.3,
+                    "maxWakeProbability": 0.1,
+                    "motionLockoutMin": 4.0
+                },
+                "nights": 31,
+                "cues": 192,
+                "byStage": [
+                    9,
+                    19,
+                    0,
+                    164
+                ],
+                "precision": 0.8541666666666666,
+                "wrongPerNight": 0.9032258064516129,
+                "periodsReached": 33,
+                "periods": 71,
+                "coverage": 0.4647887323943662
+            },
+            {
+                "rules": {
+                    "remThreshold": 0.7,
+                    "minSustainedRemMin": 3.0,
+                    "minConfidence": 0.3,
+                    "maxWakeProbability": 0.2,
+                    "motionLockoutMin": 4.0
+                },
+                "nights": 31,
+                "cues": 192,
+                "byStage": [
+                    9,
+                    19,
+                    0,
+                    164
+                ],
+                "precision": 0.8541666666666666,
+                "wrongPerNight": 0.9032258064516129,
+                "periodsReached": 33,
+                "periods": 71,
+                "coverage": 0.4647887323943662
+            },
+            {
+                "rules": {
+                    "remThreshold": 0.7,
+                    "minSustainedRemMin": 3.0,
+                    "minConfidence": 0.3,
+                    "maxWakeProbability": 0.3,
+                    "motionLockoutMin": 4.0
+                },
+                "nights": 31,
+                "cues": 192,
+                "byStage": [
+                    9,
+                    19,
+                    0,
+                    164
+                ],
+                "precision": 0.8541666666666666,
+                "wrongPerNight": 0.9032258064516129,
+                "periodsReached": 33,
+                "periods": 71,
+                "coverage": 0.4647887323943662
+            },
+            {
+                "rules": {
+                    "remThreshold": 0.7,
+                    "minSustainedRemMin": 3.0,
+                    "minConfidence": 0.45,
+                    "maxWakeProbability": 0.1,
+                    "motionLockoutMin": 4.0
+                },
+                "nights": 31,
+                "cues": 192,
+                "byStage": [
+                    9,
+                    19,
+                    0,
+                    164
+                ],
+                "precision": 0.8541666666666666,
+                "wrongPerNight": 0.9032258064516129,
+                "periodsReached": 33,
+                "periods": 71,
+                "coverage": 0.4647887323943662
+            },
+            {
+                "rules": {
+                    "remThreshold": 0.7,
+                    "minSustainedRemMin": 3.0,
+                    "minConfidence": 0.45,
+                    "maxWakeProbability": 0.2,
+                    "motionLockoutMin": 4.0
+                },
+                "nights": 31,
+                "cues": 192,
+                "byStage": [
+                    9,
+                    19,
+                    0,
+                    164
+                ],
+                "precision": 0.8541666666666666,
+                "wrongPerNight": 0.9032258064516129,
+                "periodsReached": 33,
+                "periods": 71,
+                "coverage": 0.4647887323943662
+            },
+            {
+                "rules": {
+                    "remThreshold": 0.7,
+                    "minSustainedRemMin": 3.0,
+                    "minConfidence": 0.45,
+                    "maxWakeProbability": 0.3,
+                    "motionLockoutMin": 4.0
+                },
+                "nights": 31,
+                "cues": 192,
+                "byStage": [
+                    9,
+                    19,
+                    0,
+                    164
+                ],
+                "precision": 0.8541666666666666,
+                "wrongPerNight": 0.9032258064516129,
+                "periodsReached": 33,
+                "periods": 71,
+                "coverage": 0.4647887323943662
+            },
+            {
+                "rules": {
+                    "remThreshold": 0.7,
+                    "minSustainedRemMin": 3.0,
+                    "minConfidence": 0.6,
+                    "maxWakeProbability": 0.1,
+                    "motionLockoutMin": 4.0
+                },
+                "nights": 31,
+                "cues": 192,
+                "byStage": [
+                    9,
+                    19,
+                    0,
+                    164
+                ],
+                "precision": 0.8541666666666666,
+                "wrongPerNight": 0.9032258064516129,
+                "periodsReached": 33,
+                "periods": 71,
+                "coverage": 0.4647887323943662
+            },
+            {
+                "rules": {
+                    "remThreshold": 0.7,
+                    "minSustainedRemMin": 3.0,
+                    "minConfidence": 0.6,
+                    "maxWakeProbability": 0.2,
+                    "motionLockoutMin": 4.0
+                },
+                "nights": 31,
+                "cues": 192,
+                "byStage": [
+                    9,
+                    19,
+                    0,
+                    164
+                ],
+                "precision": 0.8541666666666666,
+                "wrongPerNight": 0.9032258064516129,
+                "periodsReached": 33,
+                "periods": 71,
+                "coverage": 0.4647887323943662
+            },
+            {
+                "rules": {
+                    "remThreshold": 0.7,
+                    "minSustainedRemMin": 3.0,
+                    "minConfidence": 0.6,
+                    "maxWakeProbability": 0.3,
+                    "motionLockoutMin": 4.0
+                },
+                "nights": 31,
+                "cues": 192,
+                "byStage": [
+                    9,
+                    19,
+                    0,
+                    164
+                ],
+                "precision": 0.8541666666666666,
+                "wrongPerNight": 0.9032258064516129,
+                "periodsReached": 33,
+                "periods": 71,
+                "coverage": 0.4647887323943662
+            },
+            {
+                "rules": {
+                    "remThreshold": 0.8,
+                    "minSustainedRemMin": 3.0,
+                    "minConfidence": 0.3,
+                    "maxWakeProbability": 0.1,
+                    "motionLockoutMin": 1.0
+                },
+                "nights": 31,
+                "cues": 161,
+                "byStage": [
+                    6,
+                    19,
+                    0,
+                    136
+                ],
+                "precision": 0.84472049689441,
+                "wrongPerNight": 0.8064516129032258,
+                "periodsReached": 26,
+                "periods": 71,
+                "coverage": 0.36619718309859156
+            }
+        ]
+    }
 }

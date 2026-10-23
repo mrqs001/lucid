@@ -124,8 +124,15 @@ Bugs found only on real hardware, all fixed and covered by tests:
 
 - The stage model is now fitted on 31 PSG-scored nights with wrist heart rate and motion (Walch et
   al. 2019) and tested leave-one-subject-out through the real pipeline: kappa 0.22 → 0.40, REM
-  calls right 45 % → 57 %, would-be cues in REM 66 % → 85 %, probabilities calibrated instead of
+  calls right 45 % → 57 %, would-be cues in REM 65 % → 85 %, probabilities calibrated instead of
   wildly overconfident. Shipped as `hmm-walch-v1`. See [MODEL.md](MODEL.md).
+- Earliest cue time lowered from 5 h to 3.5 h after sleep onset: detection is already good then, and
+  5 h left almost no cue time on short nights.
+- Cue rules tuned on the lab nights: REM must be sustained 3 min instead of 5, and movement blocks
+  cues for 4 min instead of 2. Late REM periods reached 35 % → 46 % (held out), wrong cues per night
+  0.87 → 1.10.
+- Nights recorded with an older model are re-estimated from their stored samples when the app
+  starts, so reports always show the current model. Nights with delivered cues stay as recorded.
 - Fixed along the way: accelerometer offset counted as movement (the Galaxy Watch7 reads 4-47 mg
   when still, by wrist position); motion evidence ignored whenever the pulse signal dropped out;
   REM carried through epochs without heart-rate data counted towards the 5 min sustain rule.

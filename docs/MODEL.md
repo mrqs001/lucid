@@ -6,7 +6,7 @@ explains the model, how it was fitted and tested, and what it can and cannot do.
 
 Short version: on nights it never saw, the fitted model agrees with the sleep lab far better than
 the old hand-set one (Cohen's kappa 0.40 vs 0.22). 85 % of the cues it would send land in real REM,
-compared with 66 % before. Its probabilities also became honest. It was fitted on Apple Watch
+compared with 65 % for the old model under the same rules. Its probabilities also became honest. It was fitted on Apple Watch
 data, so on a Galaxy Watch it is still unvalidated.
 
 ## The model
@@ -71,15 +71,15 @@ All numbers are for held-out nights, 25,946 scored epochs.
 
 | model | accuracy | kappa | REM found | REM calls right | log score | would-be cues | in REM |
 |---|---|---|---|---|---|---|---|
-| hand-set (before) | 42 % | 0.22 | 43 % | 45 % | -2.75 | 146 | 66 % |
-| fitted, bell curves | 54 % | 0.35 | 53 % | 56 % | -1.39 | 137 | 79 % |
-| fitted, bell curves, hand-set transitions | 53 % | 0.32 | 53 % | 56 % | -1.59 | 150 | 82 % |
-| fitted, histograms | 55 % | 0.36 | 61 % | 51 % | -1.36 | 157 | 75 % |
-| fitted, bell curves, tuned weights | 59 % | 0.37 | 45 % | 61 % | -1.00 | 80 | 79 % |
-| **fitted, histograms, tuned weights (shipped)** | **60 %** | **0.40** | **56 %** | **57 %** | **-0.97** | **116** | **85 %** |
+| hand-set (before) | 42 % | 0.22 | 43 % | 45 % | -2.75 | 330 | 65 % |
+| fitted, bell curves | 54 % | 0.35 | 53 % | 56 % | -1.39 | 239 | 83 % |
+| fitted, bell curves, hand-set transitions | 53 % | 0.32 | 53 % | 56 % | -1.59 | 269 | 84 % |
+| fitted, histograms | 55 % | 0.36 | 61 % | 51 % | -1.36 | 301 | 73 % |
+| fitted, bell curves, tuned weights | 59 % | 0.37 | 45 % | 61 % | -1.00 | 136 | 79 % |
+| **fitted, histograms, tuned weights (shipped)** | **60 %** | **0.40** | **56 %** | **57 %** | **-0.97** | **192** | **85 %** |
 
 "Would-be cues" are the cue rules' decisions with every safety rule on, including no cues in the
-first 5 h. They are logged, not sent. For scale, a flat 25 % guess scores -1.39 on the log score
+first 3.5 h. They are logged, not sent. For scale, a flat 25 % guess scores -1.39 on the log score
 and always predicting the average stage mix scores -1.14. The hand-set model was far worse than
 both. It said 95 % when it should have said 50 %.
 
@@ -88,15 +88,15 @@ weights barely moved between folds (`hrRel` 0.20 to 0.35, `hrInstability` 0.25 t
 0.75 to 2.0, `stillness` 0 to 0.25), which suggests they are not fitted to noise. The final values
 are 0.25, 0.35, 1.5 and 0.1.
 
-Off-target cues: of the shipped model's 116 would-be cues, 99 were in REM, 13 in light sleep, 4 in
-wake and none in deep sleep. The hand-set model put 49 of its 146 in light sleep.
+Off-target cues: of the shipped model's 192 would-be cues, 164 were in REM, 19 in light sleep, 9
+in wake and none in deep sleep. The hand-set model put 113 of its 330 in light sleep.
 
 ![Example night](model/walch-example-night.png)
 
 ![Calibration](model/walch-calibration.png)
 
 The fitted model is still a bit overconfident at the top. When it says 0.9 or more, the lab says
-REM about 70 % of the time. The cue rules require 5 min of sustained probable REM on top of that,
+REM about 70 % of the time. The cue rules require 3 min of sustained probable REM on top of that,
 which is how cue precision gets to 85 %.
 
 ![Every night before and after](model/walch-subjects.png)
@@ -126,18 +126,52 @@ subject 781756 the hand-set model happened to fit better.
 
 ![Cue accuracy by hour](model/walch-cue-by-hour.png)
 
-With the 5 h rule switched off, the share of would-be cues landing in REM, by hours since sleep
-onset:
+With the time-of-night rule switched off (and the cue rules below), the share of would-be cues
+landing in REM, by hours since sleep onset:
 
 | hour | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
 |---|---|---|---|---|---|---|---|---|
-| cues in REM | 43 % | 65 % | 73 % | 72 % | 90 % | 93 % | 83 % | 71 % |
-| cues | 14 | 72 | 77 | 46 | 31 | 42 | 30 | 17 |
+| cues in REM | 44 % | 68 % | 68 % | 81 % | 87 % | 98 % | 85 % | 94 % |
+| cues | 25 | 85 | 85 | 53 | 31 | 44 | 27 | 16 |
 
-Detection is as good from hour 4 as from hour 5. Each hour holds only 30 to 80 cues, so every
-number is uncertain by roughly ±10 points. The 5 h default comes from lucidity research (later cues
-induce lucidity more often), not from detection. For short nights, setting Settings → "No cues
-before" to 4 h costs little accuracy.
+Cues are about 68 % right in hours 1 and 2 and above 80 % from hour 3 on. Each hour holds only 16
+to 85 cues, so every number is uncertain by roughly ±10 points.
+
+The REM periods themselves, from the lab hypnograms: the first REM came a median 88 min after
+falling asleep (middle half 63 to 136 min). The first period was short (median 17 min of REM, at
+1.5 h), the next ones longer (29 min at 3.1 h, 32 min at 4.9 h, 24 min at 6 h).
+
+The default was 5 h. It now is 3.5 h: it skips the short first REM period and the least precise
+hours, and still leaves room on short nights. With the cue rules of the time, the shipped model's
+would-be cues rose from 116 to 166 at almost the same precision (85 % to 84 %). People who sleep long and want cues
+concentrated late can raise it in Settings → "No cues before"; wake-back-to-bed studies found
+lucidity more likely at 6 h than at 4.5 h.
+
+## Cue rules
+
+The rules that turn p(REM) into a cue were set from lab cueing studies, not from data. Five of them
+were then tuned on the lab nights with the stage model fixed (held-out predictions only): the REM
+threshold, how long REM must be sustained, minimum confidence, maximum p(wake) and the movement
+lockout, 540 combinations in all. The safety caps (one cue per minute, 6 per REM period, 20 per
+night, 3.5 h earliest) were left alone.
+
+The goal was to reach more late REM periods, those with at least 5 min of REM after the earliest
+cue time, without more wrong cues. Rules were picked on 30 nights and scored on the 31st, for every
+night in turn. Picks could add up to 0.1 wrong cues per night, about one every ten nights.
+
+| rules | late REM periods reached | cues in REM | wrong cues per night |
+|---|---|---|---|
+| before: sustain 5 min, movement lockout 2 min | 25 of 71 (35 %) | 84 % | 0.87 |
+| after: sustain 3 min, movement lockout 4 min | 33 of 71 (46 %) | 85 % | 0.90 |
+| after, scored on held-out nights | 33 of 71 (46 %) | 83 % | 1.10 |
+
+The held-out row is the honest estimate: a third more REM periods reached, for about one extra
+wrong cue every four nights. Almost all of the gain comes from the sustain time. Many REM periods
+are fragmented and end before 5 min of continuous probable REM, so they never got a cue. The longer
+movement lockout removed most of the extra wrong cues, because movements cluster where REM ends.
+The threshold, confidence and p(wake) settings changed nothing and stay as they were. Without the
+tolerance, the search found no real improvement (one more period, and more wrong cues held out).
+The full grid is written to `output/walch/cue-rules.csv`.
 
 ## Bugs the data exposed
 

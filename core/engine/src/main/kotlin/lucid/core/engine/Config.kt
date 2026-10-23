@@ -36,19 +36,26 @@ data class CueingConfig(
     /** Minimum signal quality of the latest epochs. */
     val minSignalQuality: Float = 0.5f,
     /**
-     * REM must have been probable for this long before the first cue of a REM period
-     * (Paul et al. 2014 waited 5-10 min of REM; a wrist estimate needs at least as much margin).
+     * REM must have been probable for this long before the first cue of a REM period. Tuned on 31
+     * lab nights (docs/MODEL.md): 3 min reached a third more late REM periods than 5 min (many REM
+     * periods are fragmented and end before 5 min) at about the same share of cues in REM.
      */
-    val minSustainedRemMin: Float = 5f,
+    val minSustainedRemMin: Float = 3f,
     /**
-     * No cues during the first part of the night: deep-sleep-heavy, short REM periods, and lucidity
-     * induction works better late (Erlacher 2022: 4.5 h worse than 6 h).
+     * No cues during the first part of the night. In 31 lab nights the first REM period was short
+     * (median 17 min, later ones 20-30 min) and cues were least precise early: about 68 % landed in
+     * REM in hours 1-2 after onset, over 80 % from hour 3 on (docs/MODEL.md). 3.5 h still leaves room
+     * on short nights. Long sleepers may prefer later: wake-back-to-bed studies found lucidity more
+     * likely at 6 h than at 4.5 h (Erlacher 2022).
      */
-    val minMinutesAfterSleepOnset: Float = 300f,
+    val minMinutesAfterSleepOnset: Float = 210f,
     /** Skip epochs where wake is this likely. */
     val maxWakeProbability: Float = 0.20f,
-    /** Any movement within this many minutes blocks cueing. */
-    val motionLockoutMin: Float = 2f,
+    /**
+     * Any movement within this many minutes blocks cueing. Movements cluster where REM ends and at
+     * awakenings; with the shorter sustain time, 4 min avoided most of the extra wrong cues.
+     */
+    val motionLockoutMin: Float = 4f,
     /** Lab TLR studies cue every 10-60 s inside REM; one cue per minute is the conservative end. */
     val minCueSpacingSec: Int = 60,
     val maxCuesPerNight: Int = 20,

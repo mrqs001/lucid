@@ -154,6 +154,9 @@ interface EventDao {
     @Query("DELETE FROM session_event WHERE sessionId = :sessionId")
     suspend fun deleteFor(sessionId: String)
 
+    @Query("DELETE FROM session_event WHERE sessionId = :sessionId AND type = :type")
+    suspend fun deleteType(sessionId: String, type: String)
+
     @Query("DELETE FROM session_event")
     suspend fun deleteAll()
 }

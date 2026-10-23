@@ -39,6 +39,7 @@ import lucid.app.link.LinkState
 import lucid.app.link.WatchMessenger
 import lucid.app.link.WatchLink
 import lucid.core.engine.CueAction
+import lucid.core.engine.CueDecision
 import lucid.core.engine.EngineConfig
 import lucid.core.engine.EngineEvent
 import lucid.core.engine.FeatureContribution
@@ -376,14 +377,7 @@ class SessionManager(
             }
             is EngineEvent.CueDecided -> {
                 val d = e.decision
-                db.cues().insert(
-                    CueEventEntity(
-                        sessionId = r.sessionId, t = d.t, epochIdx = d.epochIndex, action = d.action.name,
-                        failuresJson = json.encodeToString(failuresSerializer, d.failures), explanation = d.explanation,
-                        pRem = d.pRem, pWake = d.pWake, confidence = d.confidence, quality = d.quality,
-                        intensity = d.intensity, patternId = d.patternId, cueId = d.cueId, cueNumber = d.cueNumber,
-                    ),
-                )
+                db.cues().insert(cueRow(r.sessionId, d))
                 val cmd = e.command
                 if (cmd != null && !r.link.send(cmd)) {
                     db.cues().setOutcome(cmd.cueId, "SEND_FAILED", now ?: d.t, "link unavailable: ${r.link.state.value.label}")
@@ -507,17 +501,7 @@ class SessionManager(
             if (samples.size > 5000) flushLocked()
         }
 
-        suspend fun addEpoch(e: EngineEvent.EpochProcessed) = lock.withLock {
-            val f = e.features
-            val p = e.prediction
-            epochs += EpochEntity(
-                sessionId = sessionId, idx = f.index, startMs = f.startMs, hrMean = f.hrMean, hrRel = f.hrRel,
-                hrInstability = f.hrInstability, rmssd = f.rmssdMs, activityMg = f.activityMg, activeSeconds = f.activeSeconds,
-                quality = f.quality, contactLost = f.contactLost, pWake = p.probabilities[0], pLight = p.probabilities[1],
-                pDeep = p.probabilities[2], pRem = p.probabilities[3], confidence = p.confidence, stage = p.mostLikely.ordinal,
-                contributionsJson = json.encodeToString(contributionsSerializer, p.contributions),
-            )
-        }
+        suspend fun addEpoch(e: EngineEvent.EpochProcessed) = lock.withLock { epochs += epochRow(sessionId, e) }
 
         suspend fun addTruth(rows: List<SimTruthEntity>) = lock.withLock { truth += rows }
 
@@ -542,5 +526,24 @@ class SessionManager(
         val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
         val failuresSerializer = ListSerializer(GateFailure.serializer())
         val contributionsSerializer = ListSerializer(FeatureContribution.serializer())
+
+        fun epochRow(sessionId: String, e: EngineEvent.EpochProcessed): EpochEntity {
+            val f = e.features
+            val p = e.prediction
+            return EpochEntity(
+                sessionId = sessionId, idx = f.index, startMs = f.startMs, hrMean = f.hrMean, hrRel = f.hrRel,
+                hrInstability = f.hrInstability, rmssd = f.rmssdMs, activityMg = f.activityMg, activeSeconds = f.activeSeconds,
+                quality = f.quality, contactLost = f.contactLost, pWake = p.probabilities[0], pLight = p.probabilities[1],
+                pDeep = p.probabilities[2], pRem = p.probabilities[3], confidence = p.confidence, stage = p.mostLikely.ordinal,
+                contributionsJson = json.encodeToString(contributionsSerializer, p.contributions),
+            )
+        }
+
+        fun cueRow(sessionId: String, d: CueDecision) = CueEventEntity(
+            sessionId = sessionId, t = d.t, epochIdx = d.epochIndex, action = d.action.name,
+            failuresJson = json.encodeToString(failuresSerializer, d.failures), explanation = d.explanation,
+            pRem = d.pRem, pWake = d.pWake, confidence = d.confidence, quality = d.quality,
+            intensity = d.intensity, patternId = d.patternId, cueId = d.cueId, cueNumber = d.cueNumber,
+        )
     }
 }

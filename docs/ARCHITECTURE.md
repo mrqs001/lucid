@@ -72,12 +72,12 @@ failed, or delivered / "would deliver" (baseline nights). Rules:
 |------|---------|-----|
 | Data fresh (epoch end vs now) | 90 s | Never cue on backfilled data |
 | Watch reachable | heard in last 45 s | Half-open links look connected |
-| Sleep onset known, hours since onset | ≥ 5 h | Late REM is longer; lucidity induction works better late |
+| Sleep onset known, hours since onset | ≥ 3.5 h | The first REM period is short and early estimates are least precise (MODEL.md) |
 | Confidence | ≥ 0.45 | |
 | Signal quality (last 2 epochs) | ≥ 0.5 | |
-| REM sustained | ≥ 5 min, **restarted by any movement or an epoch without usable heart rate** | Estimates lag; movements mark stage transitions; without fresh data the filter only repeats its last state |
+| REM sustained | ≥ 3 min, **restarted by any movement or an epoch without usable heart rate** | Estimates lag; movements mark stage transitions; without fresh data the filter only repeats its last state |
 | p(wake) | ≤ 0.20 | |
-| No movement for | 2 min | |
+| No movement for | 4 min | Movements cluster where REM ends |
 | Pause after suspected arousal | 15 min | |
 | Spacing | 60 s | |
 | Caps | 6 per REM period, 20 per night | |

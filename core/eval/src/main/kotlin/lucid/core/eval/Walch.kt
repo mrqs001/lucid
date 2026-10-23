@@ -81,7 +81,7 @@ data class Metrics(
     val wouldCueInRem: Double,
     /** PSG stage at each of those decisions. */
     val wouldCueByStage: Map<String, Int>,
-    /** Same policy without the "5 h after onset" gate, to get enough decisions to measure. */
+    /** Same policy without the time-of-night gate, to get enough decisions to measure. */
     val wouldCueAllNight: Int,
     val wouldCueAllNightInRem: Double,
     /** The same, by whole hours since the estimated sleep onset. */
@@ -318,6 +318,7 @@ data class WalchReport(
     val logScores: Map<String, Double>,
     val chosen: String,
     val perSubject: List<SubjectResult>,
+    val cueRules: CueRuleReport,
 )
 
 fun runWalch(prepared: String, outDir: String) {
@@ -382,6 +383,10 @@ fun runWalch(prepared: String, outDir: String) {
     )
     val best = results.getValue(chosen).nights
 
+    // Cue rules, tuned on the chosen model's held-out predictions.
+    val chosenSpecs = results.getValue(chosen).specs
+    val cueRules = tuneCueRules(subjects, { i, cfg -> run(subjects[i], chosenSpecs[i], cfg) }, cueConfig, out)
+
     val report = WalchReport(
         dataset = "Walch et al. 2019, sleep-accel 1.0.0 (PhysioNet): Apple Watch heart rate (~0.2 Hz, interpolated to 1 Hz) and accelerometer, PSG labels",
         subjects = subjects.size,
@@ -389,6 +394,7 @@ fun runWalch(prepared: String, outDir: String) {
         models = metricsBy,
         logScores = results.mapValues { logScore(it.value.nights) },
         chosen = chosen,
+        cueRules = cueRules,
         perSubject = subjects.indices.map { i ->
             val c = metrics(listOf(best[i]), emptyList(), emptyList())
             SubjectResult(
@@ -440,5 +446,16 @@ fun runWalch(prepared: String, outDir: String) {
             ),
         )
     }
+    fun show(label: String, r: RuleScore) = println(
+        "%-34s %s  cues %4d  in REM %5.1f%%  wrong/night %.2f  late REM periods reached %d/%d (%.0f%%)".format(
+            label, r.rules, r.cues, 100 * r.precision, r.wrongPerNight, r.periodsReached, r.periods, 100 * r.coverage,
+        ),
+    )
+    println("\ncue rules (${cueRules.selection}):")
+    show("current", cueRules.current)
+    show("best on all 31 nights", cueRules.chosenOnAllNights)
+    show("held out (${cueRules.heldOutRuleSets} rule sets picked)", cueRules.heldOutTuned)
+    show("with tolerance, all 31 nights", cueRules.chosenWithTolerance)
+    show("with tolerance, held out (${cueRules.heldOutWithToleranceRuleSets} sets)", cueRules.heldOutWithTolerance)
     println("\nchosen: $chosen\nwrote ${out.path}/hmm-walch-v1.json, walch-report.json, walch-epochs.csv, walch-fold-weights.csv")
 }
